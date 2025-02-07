@@ -189,6 +189,15 @@ app.listen(port, () => {
   console.log(`API running on port ${port}.`);
 });
 
+var location = [
+  {
+    id: 1,
+    locationName: "The Junkyard grills, Centeral Area, Abuja.",
+    locationType: "Outdoor",
+    rating: 4
+  }
+]
+
 var jokes = [
   {
     id: 1,
