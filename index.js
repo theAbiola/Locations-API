@@ -189,7 +189,7 @@ app.listen(port, () => {
   console.log(`API running on port ${port}.`);
 });
 
-var location = [
+var locations = [
   {
     id: 1,
     locationName: "The Junkyard grills, Centeral Area, Abuja.",
