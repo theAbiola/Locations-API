@@ -194,8 +194,14 @@ var locations = [
     id: 1,
     locationName: "The Junkyard grills, Centeral Area, Abuja.",
     locationType: "Outdoor",
-    rating: 4
-  }
+    rating: "4/5"
+  },
+  {
+    id: 2,
+    locationName: "The Pasha Restaurant, Maitama Abuja.",
+    locationType: "Indoor",
+    rating: "4.5/5"
+  },
 ]
 
 var jokes = [
