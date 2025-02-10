@@ -202,6 +202,12 @@ var locations = [
     locationType: "Indoor",
     rating: "4.5/5"
   },
+  {
+    id: 3,
+    locationName: "The Milkshop and Breakfast company",
+    locationType: "Indoor",
+    rating: "4.2/5"
+  },
 ]
 
 var jokes = [
