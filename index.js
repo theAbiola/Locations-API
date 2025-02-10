@@ -194,18 +194,21 @@ var locations = [
     id: 1,
     locationName: "The Junkyard grills, Centeral Area, Abuja.",
     locationType: "Outdoor",
-    rating: "4/5"
+    mapsURL: "https://www.google.com/maps/place/The+Junkyard+Grills/@9.0656501,7.4871531,17z/data=!3m1!4b1!4m6!3m5!1s0x104e0b876430e6b3:0xaa7826a359e8ae70!8m2!3d9.0656501!4d7.489728!16s%2Fg%2F11g232csty?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D",
+    rating: "4/5",
   },
   {
     id: 2,
     locationName: "The Pasha Restaurant, Maitama, Abuja.",
     locationType: "Indoor",
-    rating: "4.5/5"
+    mapsURL: "https://www.google.com/maps/place/The+Pasha/@9.0754602,7.4961043,17z/data=!4m9!3m8!1s0x104e0a4940cc7e1f:0x9d201249e6ad70ab!5m2!4m1!1i2!8m2!3d9.0754602!4d7.4986792!16s%2Fg%2F1v1m909v?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D",
+    rating: "4.5/5",
   },
   {
     id: 3,
     locationName: "The Milkshop and Breakfast company, Maitama, Abuja",
     locationType: "Indoor",
+    mapsURL: "https://www.google.com/maps/place/The+Breakfast+Company/@9.0873612,7.4936229,17z/data=!4m10!1m2!2m1!1sThe+Milkshop+and+Breakfast+company,+Maitama,+Abuja!3m6!1s0x104e0af9aaaaaaab:0xeaf2216f682d03aa!8m2!3d9.0873612!4d7.4983865!15sCjJUaGUgTWlsa3Nob3AgYW5kIEJyZWFrZmFzdCBjb21wYW55LCBNYWl0YW1hLCBBYnVqYVoyIjB0aGUgbWlsa3Nob3AgYW5kIGJyZWFrZmFzdCBjb21wYW55IG1haXRhbWEgYWJ1amGSARRicmVha2Zhc3RfcmVzdGF1cmFudOABAA!16s%2Fg%2F11knncwhs6?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D",
     rating: "4.2/5"
   },
 ]
