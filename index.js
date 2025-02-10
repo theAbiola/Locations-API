@@ -198,13 +198,13 @@ var locations = [
   },
   {
     id: 2,
-    locationName: "The Pasha Restaurant, Maitama Abuja.",
+    locationName: "The Pasha Restaurant, Maitama, Abuja.",
     locationType: "Indoor",
     rating: "4.5/5"
   },
   {
     id: 3,
-    locationName: "The Milkshop and Breakfast company",
+    locationName: "The Milkshop and Breakfast company, Maitama, Abuja",
     locationType: "Indoor",
     rating: "4.2/5"
   },
