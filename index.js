@@ -211,6 +211,13 @@ var locations = [
     mapsURL: "https://www.google.com/maps/place/The+Breakfast+Company/@9.0873612,7.4936229,17z/data=!4m10!1m2!2m1!1sThe+Milkshop+and+Breakfast+company,+Maitama,+Abuja!3m6!1s0x104e0af9aaaaaaab:0xeaf2216f682d03aa!8m2!3d9.0873612!4d7.4983865!15sCjJUaGUgTWlsa3Nob3AgYW5kIEJyZWFrZmFzdCBjb21wYW55LCBNYWl0YW1hLCBBYnVqYVoyIjB0aGUgbWlsa3Nob3AgYW5kIGJyZWFrZmFzdCBjb21wYW55IG1haXRhbWEgYWJ1amGSARRicmVha2Zhc3RfcmVzdGF1cmFudOABAA!16s%2Fg%2F11knncwhs6?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D",
     rating: "4.2/5"
   },
+  {
+    id: 4,
+    locationName: "Truck Central, Central Business District, Abuja",
+    locationType: "Outdoor",
+    mapsURL: "https://www.google.com/maps/place/Truck+Central/@9.0554115,7.4729394,17z/data=!3m1!4b1!4m6!3m5!1s0x104e0b26dd10aed1:0xc6882c6bc9e0d958!8m2!3d9.0554115!4d7.4755143!16s%2Fg%2F11txgxfls2?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D",
+    rating: "4.5/5"
+  },
 ]
 
 var jokes = [
