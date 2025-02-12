@@ -192,7 +192,7 @@ app.listen(port, () => {
 var locations = [
   {
     id: 1,
-    locationName: "The Junkyard grills, Centeral Area, Abuja.",
+    locationName: "The Junkyard grills, Central Area, Abuja.",
     locationType: "Outdoor",
     mapsURL: "https://www.google.com/maps/place/The+Junkyard+Grills/@9.0656501,7.4871531,17z/data=!3m1!4b1!4m6!3m5!1s0x104e0b876430e6b3:0xaa7826a359e8ae70!8m2!3d9.0656501!4d7.489728!16s%2Fg%2F11g232csty?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D",
     rating: "4/5",
@@ -217,6 +217,13 @@ var locations = [
     locationType: "Outdoor",
     mapsURL: "https://www.google.com/maps/place/Truck+Central/@9.0554115,7.4729394,17z/data=!3m1!4b1!4m6!3m5!1s0x104e0b26dd10aed1:0xc6882c6bc9e0d958!8m2!3d9.0554115!4d7.4755143!16s%2Fg%2F11txgxfls2?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D",
     rating: "4.5/5"
+  },
+  {
+    id: 5,
+    locationName: "Jabi Boat Club, Jabi, Abuja",
+    locationType: "Indoor/Outdoor",
+    mapsURL: "https://www.google.com/maps/place/The+Boat+Club/@9.0704918,7.4098442,16.4z/data=!4m6!3m5!1s0x104e75a6db04f073:0xea51a3b8bd7f150f!8m2!3d9.0697441!4d7.4146742!16s%2Fg%2F11fkdh7_5_?entry=ttu&g_ep=EgoyMDI1MDIwOS4wIKXMDSoASAFQAw%3D%3D",
+    rating: "4.7/5"
   },
 ]
 
