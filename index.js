@@ -227,15 +227,15 @@ var locations = [
     locationName: "Jabi Boat Club, Jabi, Abuja",
     locationType: "Indoor/Outdoor",
     mapsURL: "https://www.google.com/maps/place/The+Boat+Club/@9.0704918,7.4098442,16.4z/data=!4m6!3m5!1s0x104e75a6db04f073:0xea51a3b8bd7f150f!8m2!3d9.0697441!4d7.4146742!16s%2Fg%2F11fkdh7_5_?entry=ttu&g_ep=EgoyMDI1MDIwOS4wIKXMDSoASAFQAw%3D%3D",
-    affordability: "3/5",
+    affordability: "3.2/5",
     rating: "4.7/5"
   },
   {
     id: 6,
-    locationName: "Jabi Boat Club, Jabi, Abuja",
+    locationName: "Otega Restaurant 24/7, Wuse 2, Abuja",
     locationType: "Indoor/Outdoor",
-    mapsURL: "https://www.google.com/maps/place/The+Boat+Club/@9.0704918,7.4098442,16.4z/data=!4m6!3m5!1s0x104e75a6db04f073:0xea51a3b8bd7f150f!8m2!3d9.0697441!4d7.4146742!16s%2Fg%2F11fkdh7_5_?entry=ttu&g_ep=EgoyMDI1MDIwOS4wIKXMDSoASAFQAw%3D%3D",
-    affordability: "3.2/5",
+    mapsURL: "https://www.google.com/maps?sca_esv=3a30a683573ba2c0&output=search&q=otega+restaurant+abuja&source=lnms&fbs=ABzOT_CWdhQLP1FcmU5B0fn3xuWpA-dk4wpBWOGsoR7DG5zJBv10Kbgy3ptSBM6mMfaz8zA4dsQnj5xEL8e8yrf6YrQm2qFvxjgbs3veW7IUFM9xHvD0ItLpuFy20BiHDRg8UkwegrJm9FjVXkCMs8DR7asGIoaBVTYmq2yX0eKyl6pRp3mZqNQ4WtReciBlhE1JgAnshoNQ&entry=mc&ved=1t:200715&ictx=111",
+    affordability: "4/5",
     rating: "4.7/5"
   },
 ]
