@@ -238,6 +238,15 @@ var locations = [
     affordability: "4/5",
     rating: "4.7/5"
   },
+  {
+    id: 7,
+    locationName: "Kebabs & Kurries, Wuse 2, Abuja",
+    locationType: "Indoor",
+    mapsURL: "https://www.google.com/maps/place/Kebabs+%26+Kurries+Restaurant/@9.0822106,7.4668932,17z/data=!3m1!4b1!4m6!3m5!1s0x104e0b5a0923a7b9:0x15af6c7556150075!8m2!3d9.0822106!4d7.4694681!16s%2Fg%2F11sbhn6_nc?entry=ttu&g_ep=EgoyMDI1MDIxMi4wIKXMDSoASAFQAw%3D%3D",
+    affordability: "4/5",
+    rating: "4.2/5"
+  },
+
 ]
 
 var jokes = [
