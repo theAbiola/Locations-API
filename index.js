@@ -78,6 +78,25 @@ app.post("/locations", (req, res) => {
 app.put("/locations/:id", (req, res) => {
   const locationId = parseInt(req.params.id);
   const { name, type, mapURL, affordability, rating } = req.body;
+  let locationIndex = locations.findIndex((location) => location.id === locationId)
+  let exactLocation = locations[locationIndex];
+  exactLocation = {
+    id: exactLocation.id,
+    locationName: name,
+    locationType: type,
+    mapURL: mapURL,
+    affordability: affordability,
+    rating: rating,
+  }
+  res.json(exactLocation);
+  console.log(exactLocation);
+});
+
+// THE FOLLOWING OPTION WORKS AS WELL AS THE ABOVE OPTION
+/*
+app.put("/locations/:id", (req, res) => {
+  const locationId = parseInt(req.params.id);
+  const { name, type, mapURL, affordability, rating } = req.body;
   let exactLocation = locations[locationId - 1];
   exactLocation = {
     id: exactLocation.id,
@@ -87,38 +106,26 @@ app.put("/locations/:id", (req, res) => {
     affordability: affordability,
     rating: rating,
   };
-  res.json(exactJoke);
-  console.log(exactJoke);
-});
-
-// THE FOLLOWING OPTION WORKS AS WELL AS THE ABOVE OPTION
-/*
-app.put("/jokes/:id", (req, res) => {
-  const jokeId = parseInt(req.params.id);
-  const {text, type} = req.body;
-  let jokeIndex = jokes.findIndex((joke) => joke.id === jokeId)
-  let exactJoke = jokes[jokeIndex];
-  exactJoke = {
-    id: jokeId,
-    jokeText: text,
-    jokeType: type
-  }
-  res.json(exactJoke);
-  console.log(exactJoke);
+  res.json(exactLocation);
+  console.log(exactLocation);
 });
 */
 
-//6. PATCH a joke
-
-app.patch("/jokes/:id", (req, res) => {
-  const jokeId = parseInt(req.params.id);
-  const { text, type } = req.body;
-  let exactJoke = jokes[jokeId - 1];
-  exactJoke = {
-    id: exactJoke.id,
-    jokeText: text || exactJoke.jokeText, //the OR is for cases where the user doesn't enter a value for this input since it's a patch request
-    jokeType: type || exactJoke.jokeType,
+//6. PATCH a location
+app.patch("/locations/:id", (req, res) => {
+  const locationId = parseInt(req.params.id);
+  const { name, type, mapURL, affordability, rating } = req.body;
+  let existingLocation = locations.find((location) => location.id == locationId);
+  let replacementLocation = {
+    id: exactLocation.id,
+    locationName: name || exactLocation.locationName, //the 'OR' is for cases where the user doesn't enter a value for the inputs since it's a patch request
+    locationType: type || exactLocation.locationType,
+    mapURL: mapURL || exactLocation.mapURL,
+    affordability: affordability || exactLocation.affordability,
+    rating: rating || exactLocation.rating,
   };
+  let locationIndex = locations.findIndex((location) => location.id == locationId);
+  locations[locationIndex] = replacementLocation;
   res.json(exactJoke);
   console.log(exactJoke);
 });
@@ -126,45 +133,45 @@ app.patch("/jokes/:id", (req, res) => {
 // THE FOLLOWING OPTION WORKS AS WELL AS THE ABOVE OPTION
 /*
 app.patch("/jokes/:id", (req, res) => {
-  const jokeId = parseInt(req.params.id);
-  const {text, type} = req.body;
-  let existingJoke = jokes.find((joke) => joke.id === jokeId);
-  let replacementJoke = {
-    id: jokeId,
-    jokeText: text || existingJoke.jokeText,
-    jokeType: type || existingJoke.jokeType
-  }
-
-  let jokeIndex = jokes.findIndex((joke) => joke.id === jokeId);
-  jokes[jokeIndex] = replacementJoke;
+let exactLocation = locations[locationId - 1];
+  exactLocation = {
+    id: exactLocation.id,
+    locationName: name || exactLocation.locationName, //the 'OR' is for cases where the user doesn't enter a value for the inputs since it's a patch request
+    locationType: type || exactLocation.locationType,
+    mapURL: mapURL || exactLocation.mapURL,
+    affordability: affordability || exactLocation.affordability,
+    rating: rating || exactLocation.rating,
+  };
+  res.json(exactJoke);
+  console.log(exactJoke);
   console.log(jokes[jokeIndex]);
   res.json(replacementJoke);
 });
 */
 
-//7. DELETE Specific joke
-app.delete("/jokes/:id", (req, res) => {
-  let jokeId = parseInt(req.params.id);
+//7. DELETE a specific location
+app.delete("/locations/:id", (req, res) => {
+  let locationId = parseInt(req.params.id);
 
-  let jokeIndex = jokes.findIndex((joke) => joke.id === jokeId);
-  if (jokeIndex > -1) {
-    jokes.splice(jokeIndex, 1);
+  let locationIndex = locations.findIndex((location) => location.id === locationId);
+  if (locationIndex > -1) {
+    locations.splice(locationIndex, 1);
     // res.status(200).send("OK!");
     res.sendStatus(200);
   } else {
     // res.status(404).json({ error: `Joke with id: ${id} not found. No jokes were deleted.` })
     res.status(404).json({
-      error: `joke with id: ${jokeId} not found. No jokes were deleted.`,
+      error: `location with id: ${locationId} not found. No locations were deleted.`,
     });
     console.log({
-      error: `joke with id: ${jokeId} not found. No jokes were deleted.`,
+      error: `location with id: ${locationId} not found. No locations were deleted.`,
     });
   }
 });
 
-//8. DELETE All jokes
-app.delete("/all", (req, res) => {
-  let userKey = req.query.key;
+//8. DELETE All locations
+app.delete("/locations/all", (req, res) => {
+  let userKey = req.body.key;
   if (userKey === masterKey) {
     jokes = [];
     res.sendStatus(200);
