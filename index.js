@@ -16,7 +16,7 @@ app.use(bodyParser.json()); //Necessary to parse incoming JSON response
 
 //1. GET a random location
 app.get("/random", (req, res) => {
-  const randomLocation = locations[Math.round(Math.random() * jokes.length)];
+  const randomLocation = locations[Math.round(Math.random() * locations.length)];
   res.json(randomLocation);
 });
 
@@ -59,33 +59,39 @@ app.get("/filter", (req, res) => {
 
 //4. POST a new location
 app.post("/locations", (req, res) => {
-  const { text, type, mapURL, rating, affordability } = req.body;
+  const { name, type, mapURL, affordability, rating } = req.body;
   const id = locations.length + 1;
   const newLocation = {
     id: id,
-    jokeText: text,
-    jokeType: type,
+    locationName: name,
+    locationType: type,
+    mapURL: mapURL,
+    affordability: affordability,
+    rating: rating,
   };
-  jokes.push(newJoke);
-  res.json(newJoke);
-  console.log(jokes.slice(-1));
+  locations.push(newLocation);
+  res.json(newLocation);
+  console.log(locations.slice(-1));
 });
 
-//5. PUT a joke
-app.put("/jokes/:id", (req, res) => {
-  const jokeId = parseInt(req.params.id);
-  const { text, type } = req.body;
-  let exactJoke = jokes[jokeId - 1];
-  exactJoke = {
-    id: exactJoke.id,
-    jokeText: text,
-    jokeType: type,
+//5. PUT a location
+app.put("/locations/:id", (req, res) => {
+  const locationId = parseInt(req.params.id);
+  const { name, type, mapURL, affordability, rating } = req.body;
+  let exactLocation = locations[locationId - 1];
+  exactLocation = {
+    id: exactLocation.id,
+    locationName: name,
+    locationType: type,
+    mapURL: mapURL,
+    affordability: affordability,
+    rating: rating,
   };
   res.json(exactJoke);
   console.log(exactJoke);
 });
 
-// THE FOLLOWING TWO OPTION WORKS AS WELL AS THE ABOVE OPTION
+// THE FOLLOWING OPTION WORKS AS WELL AS THE ABOVE OPTION
 /*
 app.put("/jokes/:id", (req, res) => {
   const jokeId = parseInt(req.params.id);
@@ -94,22 +100,6 @@ app.put("/jokes/:id", (req, res) => {
   let exactJoke = jokes[jokeIndex];
   exactJoke = {
     id: jokeId,
-    jokeText: text,
-    jokeType: type
-  }
-  res.json(exactJoke);
-  console.log(exactJoke);
-});
-*/
-
-/*
-app.put("/jokes/:id", (req, res) => {
-  const jokeId = parseInt(req.params.id);
-  const {text, type} = req.body;
-  let jokeIndex = jokes.findIndex((joke) => joke.id === jokeId)
-  let exactJoke = jokes[jokeIndex];
-  exactJoke = {
-    id: exactJoke.id,
     jokeText: text,
     jokeType: type
   }
