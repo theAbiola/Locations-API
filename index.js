@@ -14,54 +14,54 @@ const masterKey = process.env.JOKES_API_MASTERKEY;
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json()); //Necessary to parse incoming JSON response
 
-//1. GET a random joke
+//1. GET a random location
 app.get("/random", (req, res) => {
-  const randomJoke = jokes[Math.round(Math.random() * jokes.length)];
-  res.json(randomJoke);
+  const randomLocation = locations[Math.round(Math.random() * jokes.length)];
+  res.json(randomLocation);
 });
 
-// 2. GET a specific joke
-app.get("/jokes/:id", (req, res) => {
-  const jokeId = parseInt(req.params.id);
-  const exactJoke = jokes[jokeId - 1];
-  res.json(exactJoke);
+// 2. GET a specific location
+app.get("/locations/:id", (req, res) => {
+  const locationId = parseInt(req.params.id);
+  const exactLocation = locations[locationId - 1];
+  res.json(exactLocation);
 });
 
 // THE FOLLOWING TWO OPTIONS WORK AS WELL AS THE ABOVE OPTION
 /*
 EXPLICIT RETURN
-app.get("/jokes/:id", (req, res) => {
-  const jokeParam = parseInt(req.params.id);
-  const foundJoke = jokes.find((joke) => {
-      joke.id === jokeParam
-      return joke;
+app.get("/locations/:id", (req, res) => {
+  const locationParam = parseInt(req.params.id);
+  const foundLocation = locations.find((joke) => {
+      location.id === locationParam
+      return location;
     });
-  res.json(foundJoke);
+  res.json(foundLocation);
 });
 */
 
 /*
 IMPLICIT RETURN
-app.get("/jokes/:id", (req, res) => {
-  const jokeParam = parseInt(req.params.id);
-  const foundJoke = jokes.find((joke) =>
-      joke.id === jokeParam);
-  res.json(foundJoke);
+app.get("/locations/:id", (req, res) => {
+  const locationParam = parseInt(req.params.id);
+  const foundLocation = locations.find((joke) =>
+      location.id === locationParam);
+  res.json(foundLocation);
 });
 */
 
-//3. GET a jokes by filtering on the joke type
+//3. GET locations by filtering on the location type
 app.get("/filter", (req, res) => {
-  const jokeTypeQuery = req.query.type;
-  const filterJokes = jokes.filter((joke) => joke.jokeType == jokeTypeQuery);
-  res.json(filterJokes);
+  const locationTypeQuery = req.query.type;
+  const filterLocations = location.filter((location) => location.locationType == locationTypeQuery);
+  res.json(filterLocations);
 });
 
-//4. POST a new joke
-app.post("/jokes", (req, res) => {
-  const { text, type } = req.body;
-  const id = jokes.length + 1;
-  const newJoke = {
+//4. POST a new location
+app.post("/locations", (req, res) => {
+  const { text, type, mapURL, rating, affordability } = req.body;
+  const id = locations.length + 1;
+  const newLocation = {
     id: id,
     jokeText: text,
     jokeType: type,
