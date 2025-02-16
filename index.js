@@ -2,56 +2,56 @@ import express from "express";
 import bodyParser from "body-parser";
 import env from "dotenv";
 
-// This is my first API that I built to handle all the HTTP routes.
+// This API handles all the HTTP routes.
 // Once this API is hosted, the user of this API can make HTTP requests via the defined routes and will get the expected response.
 // In order to test this API, we have to start this server. We may then use Postman to send the requests
 
 const app = express();
 env.config();
 const port = process.env.API_PORT;
-const masterKey = process.env.JOKES_API_MASTERKEY;
+const masterKey = process.env.LOCATIONS_API_MASTERKEY;
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json()); //Necessary to parse incoming JSON response
+app.use(bodyParser.json()); //Important to parse incoming JSON request
 
 //1. GET a random location
-app.get("/random", (req, res) => {
+app.get("locations/random", (req, res) => {
   const randomLocation = locations[Math.round(Math.random() * locations.length)];
   res.json(randomLocation);
 });
 
 // 2. GET a specific location
 app.get("/locations/:id", (req, res) => {
-  const locationId = parseInt(req.params.id);
-  const exactLocation = locations[locationId - 1];
-  res.json(exactLocation);
+  const locationParam = parseInt(req.params.id);
+  //EXPLICIT RETURN
+  const foundLocation = locations.find((location) => {
+    location.id === locationParam
+    return location;
+  });
+  res.json(foundLocation);
 });
 
 // THE FOLLOWING TWO OPTIONS WORK AS WELL AS THE ABOVE OPTION
 /*
-EXPLICIT RETURN
 app.get("/locations/:id", (req, res) => {
-  const locationParam = parseInt(req.params.id);
-  const foundLocation = locations.find((joke) => {
-      location.id === locationParam
-      return location;
-    });
-  res.json(foundLocation);
-});
+  const locationId = parseInt(req.params.id);
+  const exactLocation = locations[locationId - 1];
+  res.json(exactLocation);
+  });
 */
 
 /*
 IMPLICIT RETURN
 app.get("/locations/:id", (req, res) => {
   const locationParam = parseInt(req.params.id);
-  const foundLocation = locations.find((joke) =>
+  const foundLocation = locations.find((location) =>
       location.id === locationParam);
   res.json(foundLocation);
 });
 */
 
 //3. GET locations by filtering on the location type
-app.get("/filter", (req, res) => {
+app.get("locations/filter", (req, res) => {
   const locationTypeQuery = req.query.type;
   const filterLocations = location.filter((location) => location.locationType == locationTypeQuery);
   res.json(filterLocations);
@@ -117,22 +117,22 @@ app.patch("/locations/:id", (req, res) => {
   const { name, type, mapURL, affordability, rating } = req.body;
   let existingLocation = locations.find((location) => location.id == locationId);
   let replacementLocation = {
-    id: exactLocation.id,
-    locationName: name || exactLocation.locationName, //the 'OR' is for cases where the user doesn't enter a value for the inputs since it's a patch request
-    locationType: type || exactLocation.locationType,
-    mapURL: mapURL || exactLocation.mapURL,
-    affordability: affordability || exactLocation.affordability,
-    rating: rating || exactLocation.rating,
+    id: existingLocation.id,
+    locationName: name || existingLocation.locationName, //the 'OR' is for cases where the user doesn't enter a value for the inputs since it's a patch request
+    locationType: type || existingLocation.locationType,
+    mapURL: mapURL || existingLocation.mapURL,
+    affordability: affordability || existingLocation.affordability,
+    rating: rating || existingLocation.rating,
   };
   let locationIndex = locations.findIndex((location) => location.id == locationId);
   locations[locationIndex] = replacementLocation;
-  res.json(exactJoke);
-  console.log(exactJoke);
+  res.json(replacementLocation);
+  console.log(replacementLocation);
 });
 
 // THE FOLLOWING OPTION WORKS AS WELL AS THE ABOVE OPTION
 /*
-app.patch("/jokes/:id", (req, res) => {
+app.patch("/locations/:id", (req, res) => {
 let exactLocation = locations[locationId - 1];
   exactLocation = {
     id: exactLocation.id,
@@ -142,10 +142,8 @@ let exactLocation = locations[locationId - 1];
     affordability: affordability || exactLocation.affordability,
     rating: rating || exactLocation.rating,
   };
-  res.json(exactJoke);
-  console.log(exactJoke);
-  console.log(jokes[jokeIndex]);
-  res.json(replacementJoke);
+  res.json(exactLocation);
+  console.log(exactLocation);
 });
 */
 
@@ -159,7 +157,7 @@ app.delete("/locations/:id", (req, res) => {
     // res.status(200).send("OK!");
     res.sendStatus(200);
   } else {
-    // res.status(404).json({ error: `Joke with id: ${id} not found. No jokes were deleted.` })
+    // res.status(404).json({ error: `Location with id: ${id} not found. No locations were deleted.` })
     res.status(404).json({
       error: `location with id: ${locationId} not found. No locations were deleted.`,
     });
@@ -173,7 +171,7 @@ app.delete("/locations/:id", (req, res) => {
 app.delete("/locations/all", (req, res) => {
   let userKey = req.body.key;
   if (userKey === masterKey) {
-    jokes = [];
+    locations = [];
     res.sendStatus(200);
   } else {
     res
