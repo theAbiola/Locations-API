@@ -11,7 +11,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json()); //Important to parse incoming JSON request
 
 //1. GET a random location
-app.get("locations/random", (req, res) => {
+app.get("/locations/random", (req, res) => {
   const randomLocation = locations[Math.round(Math.random() * locations.length)];
   res.json(randomLocation);
 });
@@ -21,8 +21,7 @@ app.get("/locations/:id", (req, res) => {
   const locationParam = parseInt(req.params.id);
   //EXPLICIT RETURN
   const foundLocation = locations.find((location) => {
-    location.id === locationParam
-    return location;
+    return location.id === locationParam
   });
   res.json(foundLocation);
 });
@@ -47,7 +46,7 @@ app.get("/locations/:id", (req, res) => {
 */
 
 //3. GET locations by filtering on the location type
-app.get("locations/filter", (req, res) => {
+app.get("/locations/filter", (req, res) => {
   const locationTypeQuery = req.query.type;
   const filterLocations = location.filter((location) => location.locationType == locationTypeQuery);
   res.json(filterLocations);
@@ -177,7 +176,7 @@ app.delete("/locations/all", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`API running on port ${port}.`);
+  console.log(`API running on port http://localhost:${port}`);
 });
 
 var locations = [
