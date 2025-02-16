@@ -8,13 +8,13 @@ const port = process.env.API_PORT;
 const masterKey = process.env.LOCATIONS_API_MASTERKEY;
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json()); //Important to parse incoming JSON request
+app.use(bodyParser.json()); //Important to parse incoming JSON requests
 
 //1. GET a random location
 app.get("/locations/random", (req, res) => {
   try {
     if (!Array.isArray(locations) || locations.length === 0) {
-      throw new Error("No locations available")
+      throw new Error("No locations available") //If error occurs, interpreter jumps to catch block and assigns this specified error to error.message
     }
 
     const randomLocation = locations[Math.floor(Math.random() * locations.length)];
@@ -68,9 +68,10 @@ app.get("/locations/:id", (req, res) => {
 */
 
 //3. GET locations by filtering on the location type
-app.get("/locations/filter", (req, res) => {
+app.get("/locations/chunk/filter", (req, res) => {
   const locationTypeQuery = req.query.type;
-  const filterLocations = location.filter((location) => location.locationType == locationTypeQuery); //IMPLICIT RETURN
+  console.log(locationTypeQuery);
+  const filterLocations = locations.filter((location) => location.locationType == locationTypeQuery); //IMPLICIT RETURN
   res.json(filterLocations);
 });
 
