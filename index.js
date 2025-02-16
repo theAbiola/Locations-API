@@ -2,10 +2,6 @@ import express from "express";
 import bodyParser from "body-parser";
 import env from "dotenv";
 
-// This API handles all the HTTP routes.
-// Once this API is hosted, the user of this API can make HTTP requests via the defined routes and will get the expected response.
-// In order to test this API, we have to start this server. We may then use Postman to send the requests
-
 const app = express();
 env.config();
 const port = process.env.API_PORT;
