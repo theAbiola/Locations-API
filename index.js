@@ -12,18 +12,40 @@ app.use(bodyParser.json()); //Important to parse incoming JSON request
 
 //1. GET a random location
 app.get("/locations/random", (req, res) => {
-  const randomLocation = locations[Math.floor(Math.random() * locations.length)];
-  res.json(randomLocation);
+  try {
+    if (!Array.isArray(locations) || locations.length === 0) {
+      throw new Error("No locations available")
+    }
+
+    const randomLocation = locations[Math.floor(Math.random() * locations.length)];
+    res.json(randomLocation);
+  } catch (error) {
+    res.status(500).json({ Error: error.message || "Something went wrong" })
+  }
 });
 
 // 2. GET a specific location
 app.get("/locations/:id", (req, res) => {
-  const locationParam = parseInt(req.params.id);
-  //EXPLICIT RETURN
-  const foundLocation = locations.find((location) => {
-    return location.id === locationParam
-  });
-  res.json(foundLocation);
+  try {
+    const locationIdParam = parseInt(req.params.id);
+
+    if (isNaN(locationIdParam)) {
+      return res.status(400).json({ Error: "Invalid parameter entered, must be a number!" });
+    }
+
+    const foundLocation = locations.find((location) => {
+      return location.id === locationIdParam     //EXPLICIT RETURN
+    });
+
+    if (!foundLocation) {
+      return res.status(404).json({ Error: "Location not found, try a valid location id." });
+    }
+
+    res.json({ location: foundLocation });
+  } catch (error) {
+    res.status(500).json({ Error: error.message || "Something went wrong" })
+  }
+
 });
 
 // THE FOLLOWING TWO OPTIONS WORK AS WELL AS THE ABOVE OPTION
@@ -48,7 +70,7 @@ app.get("/locations/:id", (req, res) => {
 //3. GET locations by filtering on the location type
 app.get("/locations/filter", (req, res) => {
   const locationTypeQuery = req.query.type;
-  const filterLocations = location.filter((location) => location.locationType == locationTypeQuery);
+  const filterLocations = location.filter((location) => location.locationType == locationTypeQuery); //IMPLICIT RETURN
   res.json(filterLocations);
 });
 
