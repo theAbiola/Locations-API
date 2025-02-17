@@ -89,19 +89,29 @@ app.get("/locations/chunk/filter", (req, res) => {
 
 //4. POST a new location
 app.post("/locations", (req, res) => {
-  const { name, type, mapURL, affordability, rating } = req.body;
-  const id = locations.length + 1;
-  const newLocation = {
-    id: id,
-    locationName: name,
-    locationType: type,
-    mapURL: mapURL,
-    affordability: affordability,
-    rating: rating,
-  };
-  locations.push(newLocation);
-  res.json(newLocation);
-  console.log(locations.slice(-1));
+  try {
+    const { name, type, mapURL, affordability, rating } = req.body;
+    if (name == null || type == null || mapURL == null || affordability == null || rating == null) {
+      res.status(400).json({ Error: "expected input is empty, try again" })
+    } else {
+      const id = locations.length + 1;
+      const newLocation = {
+        id: id,
+        locationName: name,
+        locationType: type,
+        mapURL: mapURL,
+        affordability: affordability,
+        rating: rating,
+      };
+      locations.push(newLocation);
+      res.json(newLocation);
+      console.log(locations.slice(-1));
+    }
+
+  } catch (error) {
+    res.status(500).json({ Error: "Something went wrong!" })
+  }
+
 });
 
 //5. PUT a location
