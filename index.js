@@ -43,7 +43,7 @@ app.get("/locations/:id", (req, res) => {
 
     res.json({ location: foundLocation });
   } catch (error) {
-    res.status(500).json({ Error: error.message || "Something went wrong" })
+    res.status(500).json({ Error: "Something went wrong" })
   }
 
 });
@@ -69,10 +69,22 @@ app.get("/locations/:id", (req, res) => {
 
 //3. GET locations by filtering on the location type
 app.get("/locations/chunk/filter", (req, res) => {
-  const locationTypeQuery = req.query.type;
-  console.log(locationTypeQuery);
-  const filterLocations = locations.filter((location) => location.locationType == locationTypeQuery); //IMPLICIT RETURN
-  res.json(filterLocations);
+  const queryItems = ["indoor", "outdoor", "indoor/outdoor"]
+  try {
+    const locationTypeQuery = req.query.type;
+    console.log(locationTypeQuery);
+    if (locationTypeQuery == "" || locationTypeQuery == null) {
+      return res.status(400).json({ Error: "No query parameter entered, try again!" })
+    } else if (!queryItems.includes(locationTypeQuery)) {
+      res.status(400).json({ Error: "Invalid query parameter entered, enter a valid query paramter" })
+    } else {
+      const filterLocations = locations.filter((location) => location.locationType == locationTypeQuery); //IMPLICIT RETURN
+      res.json(filterLocations);
+    }
+  } catch (error) {
+    res.status(500).json({ Error: "Something went wrong" })
+  }
+
 });
 
 //4. POST a new location
