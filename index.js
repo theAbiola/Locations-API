@@ -118,20 +118,38 @@ app.post("/locations", (req, res) => {
 
 //5. PUT a location
 app.put("/locations/:id", (req, res) => {
-  const locationId = parseInt(req.params.id);
-  const { name, type, mapURL, affordability, rating } = req.body;
-  let locationIndex = locations.findIndex((location) => location.id === locationId)
-  let exactLocation = locations[locationIndex];
-  exactLocation = {
-    id: exactLocation.id,
-    locationName: name,
-    locationType: type,
-    mapURL: mapURL,
-    affordability: affordability,
-    rating: rating,
+  try {
+    const locationId = parseInt(req.params.id);
+    const { name, type, mapURL, affordability, rating } = req.body;
+    let locationIndex = locations.findIndex((location) => location.id === locationId);
+    if (isNaN(locationId)) {
+      return res.status(400).json({ Error: "Invalid parameter entered, must be a number!" });
+    } else if (name == null || type == null || mapURL == null || affordability == null || rating == null) {
+      res.status(400).json({ Error: "expected input is empty, try again" });
+    } else if (!(affordability <= 5) || !(rating <= 5)) {
+      res.status(400).json({ Error: "enter a valid affordability or rating value" });
+    } else {
+      let exactLocation = locations[locationIndex];
+
+      if (exactLocation == null) {
+        res.status(404).json({ Error: "location not found, try a valid location Id." })
+      }
+      exactLocation = {
+        id: exactLocation.id,
+        locationName: name,
+        locationType: type,
+        mapURL: mapURL,
+        affordability: affordability,
+        rating: rating,
+      }
+      res.json(exactLocation);
+      console.log(exactLocation);
+    }
+
+  } catch (error) {
+    res.status(500).json({ Error: "Something went wrong!" })
   }
-  res.json(exactLocation);
-  console.log(exactLocation);
+
 });
 
 // THE FOLLOWING OPTION WORKS AS WELL AS THE ABOVE OPTION
