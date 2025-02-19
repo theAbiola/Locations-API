@@ -124,6 +124,7 @@ app.put("/locations/:id", (req, res) => {
     const locationId = parseInt(req.params.id);
     const { name, type, mapURL, affordability, rating } = req.body;
     let locationIndex = locations.findIndex((location) => location.id === locationId);
+
     if (isNaN(locationId)) {
       return res.status(400).json({ Error: "Invalid parameter entered, must be a number!" });
     } else if (name == null || type == null || mapURL == null || affordability == null || rating == null) {
@@ -175,21 +176,40 @@ app.put("/locations/:id", (req, res) => {
 
 //6. PATCH a location
 app.patch("/locations/:id", (req, res) => {
-  const locationId = parseInt(req.params.id);
-  const { name, type, mapURL, affordability, rating } = req.body;
-  let existingLocation = locations.find((location) => location.id == locationId);
-  let replacementLocation = {
-    id: existingLocation.id,
-    locationName: name || existingLocation.locationName, //the 'OR' is for cases where the user doesn't enter a value for the inputs since it's a patch request
-    locationType: type || existingLocation.locationType,
-    mapURL: mapURL || existingLocation.mapURL,
-    affordability: affordability || existingLocation.affordability,
-    rating: rating || existingLocation.rating,
-  };
-  let locationIndex = locations.findIndex((location) => location.id == locationId);
-  locations[locationIndex] = replacementLocation;
-  res.json(replacementLocation);
-  console.log(replacementLocation);
+  try {
+    const locationId = parseInt(req.params.id);
+    if (isNaN(locationId)) {
+      return res.status(400).json({ Error: "Invalid parameter entered, must be a number!" })
+    }
+
+    const { name, type, mapURL, affordability, rating } = req.body;
+    let existingLocation = locations.find((location) => location.id == locationId);
+
+    if (!existingLocation) {
+      return res.status(404).json({ Error: "Location not found, try a valid location id." });
+    }
+
+    let replacementLocation = {
+      id: existingLocation.id,
+      locationName: name || existingLocation.locationName, //the 'OR' is for cases where the user doesn't enter a value for the inputs since it's a patch request
+      locationType: type || existingLocation.locationType,
+      mapURL: mapURL || existingLocation.mapURL,
+      affordability: affordability || existingLocation.affordability,
+      rating: rating || existingLocation.rating,
+    };
+    let locationIndex = locations.findIndex((location) => location.id == locationId);
+
+    if (locationIndex == null) {
+      res.status(404).json({ Error: "location not found, try a valid location Id." })
+    }
+
+    locations[locationIndex] = replacementLocation;
+    res.json(replacementLocation);
+    console.log(replacementLocation);
+  } catch (error) {
+    res.status(500).json({ Error: "Something went wrong!" })
+  }
+
 });
 
 // THE FOLLOWING OPTION WORKS AS WELL AS THE ABOVE OPTION
