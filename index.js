@@ -41,7 +41,8 @@ app.get("/locations/:id", (req, res) => {
       return res.status(404).json({ Error: "Location not found, try a valid location id." });
     }
 
-    res.json({ location: foundLocation });
+    res.json(foundLocation);
+    console.log(foundLocation);
   } catch (error) {
     res.status(500).json({ Error: "Something went wrong" })
   }
@@ -80,6 +81,7 @@ app.get("/locations/chunk/filter", (req, res) => {
     } else {
       const filterLocations = locations.filter((location) => location.locationType == locationTypeQuery); //IMPLICIT RETURN
       res.json(filterLocations);
+      console.log(filterLocations);
     }
   } catch (error) {
     res.status(500).json({ Error: "Something went wrong" })
