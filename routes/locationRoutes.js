@@ -11,3 +11,26 @@ const getRandomLocation = (req, res) => {
         res.status(500).json({ Error: error.message || "Something went wrong" })
     }
 }
+
+const getSpecificLocation = (req, res) => {
+    try {
+        const locationIdParam = parseInt(req.params.id);
+
+        if (isNaN(locationIdParam)) {
+            return res.status(400).json({ Error: "Invalid parameter entered, must be a number!" });
+        }
+
+        const foundLocation = locations.find((location) => {
+            return location.id === locationIdParam     //EXPLICIT RETURN
+        });
+
+        if (!foundLocation) {
+            return res.status(404).json({ Error: "Location not found, try a valid location id." });
+        }
+
+        res.json(foundLocation);
+        console.log(foundLocation);
+    } catch (error) {
+        res.status(500).json({ Error: "Something went wrong" })
+    }
+}
