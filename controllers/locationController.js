@@ -1,5 +1,10 @@
+import env from "dotenv";
+import locations from "../model/data.js";
+env.config();
 
-const getRandomLocation = (req, res) => {
+const masterKey = process.env.LOCATIONS_API_MASTERKEY;
+
+export const getRandomLocation = (req, res) => {
     try {
         if (!Array.isArray(locations) || locations.length === 0) {
             throw new Error("No locations available") //If error occurs, interpreter jumps to catch block and assigns this specified error to error.message
@@ -12,7 +17,7 @@ const getRandomLocation = (req, res) => {
     }
 }
 
-const getSpecificLocation = (req, res) => {
+export const getSpecificLocation = (req, res) => {
     try {
         const locationIdParam = parseInt(req.params.id);
 
@@ -35,7 +40,7 @@ const getSpecificLocation = (req, res) => {
     }
 }
 
-const getFilteredLocations = (req, res) => {
+export const getFilteredLocations = (req, res) => {
     const queryItems = ["indoor", "outdoor", "indoor/outdoor"]
     try {
         const locationTypeQuery = req.query.type;
@@ -55,7 +60,7 @@ const getFilteredLocations = (req, res) => {
 
 }
 
-const postNewLocation = (req, res) => {
+export const postNewLocation = (req, res) => {
     try {
         const { name, type, mapURL, affordability, rating } = req.body;
         if (name == null || type == null || mapURL == null || affordability == null || rating == null) {
@@ -83,7 +88,7 @@ const postNewLocation = (req, res) => {
 
 }
 
-const putLocation = (req, res) => {
+export const putLocation = (req, res) => {
     try {
         const locationId = parseInt(req.params.id);
         const { name, type, mapURL, affordability, rating } = req.body;
@@ -119,7 +124,7 @@ const putLocation = (req, res) => {
 
 }
 
-const patchLocation = (req, res) => {
+export const patchLocation = (req, res) => {
     try {
         const locationId = parseInt(req.params.id);
         if (isNaN(locationId)) {
@@ -156,7 +161,7 @@ const patchLocation = (req, res) => {
 
 }
 
-const deleteSpecificLocation = (req, res) => {
+export const deleteSpecificLocation = (req, res) => {
     try {
         const locationId = parseInt(req.params.id);
 
@@ -183,7 +188,7 @@ const deleteSpecificLocation = (req, res) => {
 
 }
 
-const deleteAllLocations = (req, res) => {
+export const deleteAllLocations = (req, res) => {
     try {
         const userKey = req.body.key;
         if (userKey === masterKey) {

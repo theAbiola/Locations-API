@@ -5,7 +5,6 @@ import env from "dotenv";
 const app = express();
 env.config();
 const port = process.env.API_PORT;
-const masterKey = process.env.LOCATIONS_API_MASTERKEY;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json()); //Important to parse incoming JSON requests
@@ -90,7 +89,7 @@ app.get("/locations/chunk/filter", (req, res) => {
 });
 
 //4. POST a new location. All ratings and affordability values are on a scale of 5
-app.post("/locations", (req, res) => {
+app.post("/locations/new", (req, res) => {
   try {
     const { name, type, mapURL, affordability, rating } = req.body;
     if (name == null || type == null || mapURL == null || affordability == null || rating == null) {
