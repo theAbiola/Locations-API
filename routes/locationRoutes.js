@@ -21,4 +21,5 @@ router.patch("/:id", patchLocation);
 router.delete("/:id", deleteSpecificLocation);
 router.delete("/all", deleteAllLocations)
 
+export default router;
 
