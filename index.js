@@ -231,35 +231,48 @@ let exactLocation = locations[locationId - 1];
 
 //7. DELETE a specific location
 app.delete("/locations/:id", (req, res) => {
-  let locationId = parseInt(req.params.id);
+  try {
+    const locationId = parseInt(req.params.id);
 
-  let locationIndex = locations.findIndex((location) => location.id === locationId);
-  if (locationIndex > -1) {
-    locations.splice(locationIndex, 1);
-    // res.status(200).send("OK!");
-    res.sendStatus(200);
-  } else {
-    // res.status(404).json({ error: `Location with id: ${id} not found. No locations were deleted.` })
-    res.status(404).json({
-      error: `location with id: ${locationId} not found. No locations were deleted.`,
-    });
-    console.log({
-      error: `location with id: ${locationId} not found. No locations were deleted.`,
-    });
+    if (isNaN(locationId)) {
+      res.status(400).json({ Error: "Invalid parameter entered, id must be a number!" })
+    }
+
+    let locationIndex = locations.findIndex((location) => location.id === locationId);
+    if (locationIndex > -1) {
+      locations.splice(locationIndex, 1);
+      res.status(200).json({ Success: "Location deleted successfully!" });
+      // res.sendStatus(200);
+    } else {
+      res.status(404).json({
+        Error: `location with id: ${locationId} not found. No locations were deleted.`,
+      });
+      console.log({
+        Error: `location with id: ${locationId} not found. No locations were deleted.`,
+      });
+    }
+  } catch (error) {
+    res.status(500).json({ Error: "Something went wrong!" });
   }
+
 });
 
 //8. DELETE All locations
 app.delete("/locations/all", (req, res) => {
-  let userKey = req.body.key;
-  if (userKey === masterKey) {
-    locations = [];
-    res.sendStatus(200);
-  } else {
-    res
-      .status(404)
-      .json({ error: `You are not Authorized to perform this action` });
+  try {
+    const userKey = req.body.key;
+    if (userKey === masterKey) {
+      locations = [];
+      res.status(200).json({ Success: "All locations deleted successfully!" });
+    } else {
+      res
+        .status(400)
+        .json({ error: `You are not Authorized to perform this action` });
+    }
+  } catch (error) {
+    res.status(500).json({ Error: "Something went wrong!" })
   }
+
 });
 
 app.listen(port, () => {
