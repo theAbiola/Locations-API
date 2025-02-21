@@ -3,7 +3,7 @@ var locations = [
         id: 1,
         locationName: "The Junkyard grills, Central Area, Abuja.",
         locationType: "indoor/outdoor",
-        mapURL: "https://www.google.com/maps/place/The+Junkyard+Grills/@9.0656501,7.4871531,17z/data=!3m1!4b1!4m6!3m5!1s0x104e0b876430e6b3:0xaa7826a359e8ae70!8m2!3d9.0656501!4d7.489728!16s%2Fg%2F11g232csty?entry=ttu&g_ep=EgoyMDI1MDIwNS4xIKXMDSoASAFQAw%3D%3D",
+        mapURL: "https://maps.app.goo.gl/6VXHxodY4sh7df2D8",
         affordability: 3.5,
         rating: 4,
     },
