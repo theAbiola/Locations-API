@@ -55,6 +55,14 @@ var locations = [
         affordability: 4,
         rating: 4.2,
     },
+    {
+        id: 8,
+        locationName: "Ann's Restaurant & Bar, Maitama, Abuja",
+        locationType: "indoor",
+        mapURL: "https://maps.app.goo.gl/wVqdk2WPeWtTaSRZ6",
+        affordability: 4.1,
+        rating: 4.0,
+    },
 
 ]
 
