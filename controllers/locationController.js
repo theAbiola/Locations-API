@@ -64,9 +64,9 @@ export const postNewLocation = (req, res) => {
     try {
         const { name, type, mapURL, affordability, rating } = req.body;
         if (name == null || type == null || mapURL == null || affordability == null || rating == null) {
-            res.status(400).json({ Error: "expected input is empty, try again" });
+            return res.status(400).json({ Error: "expected input is empty, try again" });
         } else if (!(affordability <= 5) || !(rating <= 5)) {
-            res.status(400).json({ Error: "enter a valid affordability or rating value" });
+            return res.status(400).json({ Error: "enter a valid affordability or rating value" });
         } else {
             const id = locations.length + 1;
             const newLocation = {
@@ -97,14 +97,14 @@ export const putLocation = (req, res) => {
         if (isNaN(locationId)) {
             return res.status(400).json({ Error: "Invalid parameter entered, must be a number!" });
         } else if (name == null || type == null || mapURL == null || affordability == null || rating == null) {
-            res.status(400).json({ Error: "expected input is empty, try again" });
+            return res.status(400).json({ Error: "expected input is empty, try again" });
         } else if (!(affordability <= 5) || !(rating <= 5)) {
-            res.status(400).json({ Error: "enter a valid affordability or rating value" });
+            return res.status(400).json({ Error: "enter a valid affordability or rating value" });
         } else {
             let exactLocation = locations[locationIndex];
 
             if (exactLocation == null) {
-                res.status(404).json({ Error: "location not found, try a valid location Id." })
+                return res.status(404).json({ Error: "location not found, try a valid location Id." })
             }
             exactLocation = {
                 id: exactLocation.id,
@@ -149,7 +149,7 @@ export const patchLocation = (req, res) => {
         let locationIndex = locations.findIndex((location) => location.id == locationId);
 
         if (locationIndex == null) {
-            res.status(404).json({ Error: "location not found, try a valid location Id." })
+            return res.status(404).json({ Error: "location not found, try a valid location Id." })
         }
 
         locations[locationIndex] = replacementLocation;
@@ -166,7 +166,7 @@ export const deleteSpecificLocation = (req, res) => {
         const locationId = parseInt(req.params.id);
 
         if (isNaN(locationId)) {
-            res.status(400).json({ Error: "Invalid parameter entered, id must be a number!" })
+            return res.status(400).json({ Error: "Invalid parameter entered, id must be a number!" })
         }
 
         let locationIndex = locations.findIndex((location) => location.id === locationId);
@@ -175,12 +175,13 @@ export const deleteSpecificLocation = (req, res) => {
             res.status(200).json({ Success: "Location deleted successfully!" });
             // res.sendStatus(200);
         } else {
-            res.status(404).json({
-                Error: `location with id: ${locationId} not found. No locations were deleted.`,
-            });
             console.log({
                 Error: `location with id: ${locationId} not found. No locations were deleted.`,
             });
+            return res.status(404).json({
+                Error: `location with id: ${locationId} not found. No locations were deleted.`,
+            });
+
         }
     } catch (error) {
         res.status(500).json({ Error: "Something went wrong!" });
@@ -190,17 +191,15 @@ export const deleteSpecificLocation = (req, res) => {
 
 export const deleteAllLocations = (req, res) => {
     try {
-        const userKey = req.body.key;
+        let userKey = req.body.key;
         if (userKey === masterKey) {
-            locations = [];
+            locations.length = 0; //note that this locations variable here is treated a contant because it's an import so we have to use .length instead of reassigning it an empty array.
             res.status(200).json({ Success: "All locations deleted successfully!" });
         } else {
-            res
-                .status(400)
-                .json({ error: `You are not Authorized to perform this action` });
+            res.status(404).json({ Error: "You are not Authorized to perform this action" });
         }
     } catch (error) {
-        res.status(500).json({ Error: "Something went wrong!" })
+        res.status(500).json({ Error: "Something went wrong!" });
     }
 
 };

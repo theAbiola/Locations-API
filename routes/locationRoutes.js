@@ -19,7 +19,7 @@ router.post("/new", postNewLocation);
 router.put("/:id", putLocation);
 router.patch("/:id", patchLocation);
 router.delete("/:id", deleteSpecificLocation);
-router.delete("/all", deleteAllLocations)
+router.delete("/del/all", deleteAllLocations)
 
 export default router;
 
