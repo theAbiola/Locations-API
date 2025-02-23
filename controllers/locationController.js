@@ -193,7 +193,7 @@ export const deleteAllLocations = (req, res) => {
     try {
         let userKey = req.body.key;
         if (userKey === masterKey) {
-            locations.length = 0; //note that this locations variable here is treated a contant because it's an import so we have to use .length instead of reassigning it an empty array.
+            locations.length = 0; //note that this locations variable here is treated as a contant because it's an import so we have to use .length instead of reassigning it an empty array.
             res.status(200).json({ Success: "All locations deleted successfully!" });
         } else {
             res.status(404).json({ Error: "You are not Authorized to perform this action" });
