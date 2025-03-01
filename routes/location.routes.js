@@ -8,7 +8,7 @@ import {
     patchLocation,
     deleteSpecificLocation,
     deleteAllLocations
-} from "../controllers/locationController.js"
+} from "../controllers/location.controller.js"
 
 const router = express.Router();
 

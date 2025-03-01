@@ -1,7 +1,7 @@
 import express from "express";
 import bodyParser from "body-parser";
 import env from "dotenv";
-import locationRoutes from "./routes/locationRoutes.js"
+import locationRoutes from "./routes/location.routes.js"
 
 export const app = express();
 env.config();
