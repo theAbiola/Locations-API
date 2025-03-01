@@ -12,6 +12,10 @@ app.use(bodyParser.json()); //Important to parse incoming JSON requests
 
 app.use("/locations", locationRoutes);
 
+app.get("/", (req, res) => {
+  res.send("Welcome to the Locations API");
+});
+
 app.listen(port, () => {
   console.log(`API running on port http://localhost:${port}`);
 });
