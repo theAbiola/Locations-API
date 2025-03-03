@@ -3,7 +3,6 @@ import env from "dotenv";
 import locationRoutes from "./routes/location.routes.js"
 import mongoose from "mongoose";
 
-const uri = "mongodb+srv://iamabiola:MOuxfXnva7FtPpaW@apibackenddb.vfwfa.mongodb.net/?retryWrites=true&w=majority&appName=ApiBackendDB"
 
 export const app = express();
 env.config();
@@ -11,6 +10,8 @@ const port = process.env.API_PORT;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); //Important to parse incoming JSON requests
+
+const uri = process.env.MONGODB_URI;
 
 mongoose.connect(uri)
   .then(() => {
