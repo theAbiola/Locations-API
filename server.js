@@ -24,7 +24,7 @@ mongoose.connect(uri)
 app.use("/locations", locationRoutes);
 
 app.get("/", (req, res) => {
-  res.send("Welcome to the Locations API");
+  res.send("Welcome to the Locations API"); //refactor later to render an actual static webpage that contains the API documentation.
 });
 
 app.listen(port, () => {
