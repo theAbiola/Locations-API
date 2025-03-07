@@ -2,8 +2,6 @@ import env from "dotenv";
 import Location from "../model/location.model.js";
 env.config();
 
-const masterKey = process.env.LOCATIONS_API_MASTERKEY;
-
 export const getAllLocations = async (req, res) => {
     try {
         const allLocations = await Location.find({})

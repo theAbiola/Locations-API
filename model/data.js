@@ -33,7 +33,7 @@ var locations = [
     },
     {
         "id": 5,
-        "locationName": "Jabi Boat Club, Jabi, Abuja",
+        "locationName": "Jabi Boat Club, Jabi, Abuja.",
         "locationType": "indoor/outdoor",
         "mapURL": "https://maps.app.goo.gl/Aq4e5SMusweSx3GC9",
         "affordability": 3.2,
@@ -41,7 +41,7 @@ var locations = [
     },
     {
         "id": 6,
-        "locationName": "Otega Restaurant 24/7, Wuse 2, Abuja",
+        "locationName": "Otega Restaurant 24/7, Wuse 2, Abuja.",
         "locationType": "indoor",
         "mapURL": "https://maps.app.goo.gl/uku2JnvzkMiQb7rr5",
         "affordability": 4,
@@ -65,5 +65,3 @@ var locations = [
     },
 
 ]
-
-export default locations;
