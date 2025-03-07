@@ -18,7 +18,7 @@ mongoose.connect(uri)
     console.log("Successfully connected to the MongoDB Database");
   })
   .catch((error) => {
-    console.error({ error: "Connection Failed!" });
+    console.error(error.message, "Error connecting to the MongoDB Database");
   });
 
 app.use("/locations", locationRoutes);
