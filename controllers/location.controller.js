@@ -33,14 +33,14 @@ export const getSpecificLocation = async (req, res) => {
 export const getFilteredLocations = async (req, res) => {
     const queryItems = ["indoor", "outdoor", "indoor/outdoor"]
     try {
-        const locationTypeQuery = req.query.type;
+        const locationTypeQuery = req.query.locationType;
         console.log(locationTypeQuery);
         if (locationTypeQuery == "" || locationTypeQuery == null) {
             return res.status(400).json({ Error: "No query parameter entered, try again!" })
         } else if (!queryItems.includes(locationTypeQuery)) {
             res.status(400).json({ Error: "Invalid query parameter entered, enter a valid query paramter" })
         } else {
-            const filteredLocations = Location.findOne({ type: locationTypeQuery });
+            const filteredLocations = await Location.findOne({ locationType: locationTypeQuery });
             res.json(filteredLocations);
             console.log(filteredLocations);
         }
@@ -52,14 +52,14 @@ export const getFilteredLocations = async (req, res) => {
 
 export const postNewLocation = async (req, res) => {
     try {
-        const { name, type, mapURL, affordability, rating } = req.body;
-        if (name == null || type == null || mapURL == null || affordability == null || rating == null) {
+        const { locationName, locationType, mapURL, affordability, rating } = req.body;
+        if (locationName == null || locationType == null || mapURL == null || affordability == null || rating == null) {
             return res.status(400).json({ Error: "expected input is empty, try again" });
         } else if (!(affordability <= 5) || !(rating <= 5)) {
             return res.status(400).json({ Error: "enter a valid affordability or rating value" });
         } else {
-            const newLocation = { name, type, mapURL, affordability, rating };
-            const location = Location.create(newLocation);
+            const newLocation = req.body;
+            const location = await Location.create(newLocation);
             res.json(location);
             console.log(location);
         }
