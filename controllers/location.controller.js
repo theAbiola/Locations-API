@@ -1,33 +1,23 @@
 import env from "dotenv";
-import locations from "../model/data.js";
+import Location from "../model/location.model.js";
 env.config();
 
 const masterKey = process.env.LOCATIONS_API_MASTERKEY;
 
-export const getRandomLocation = (req, res) => {
+export const getAllLocations = async (req, res) => {
     try {
-        if (!Array.isArray(locations) || locations.length === 0) {
-            throw new Error("No locations available") //If error occurs, interpreter jumps to catch block and assigns this specified error to error.message
-        }
-
-        const randomLocation = locations[Math.floor(Math.random() * locations.length)];
-        res.json(randomLocation);
+        const allLocations = await Location.find({})
+        res.json(allLocations);
     } catch (error) {
         res.status(500).json({ Error: error.message || "Something went wrong" })
     }
 }
 
-export const getSpecificLocation = (req, res) => {
+export const getSpecificLocation = async (req, res) => {
     try {
-        const locationIdParam = parseInt(req.params.id);
+        const locationIdParam = req.params.id;
 
-        if (isNaN(locationIdParam)) {
-            return res.status(400).json({ Error: "Invalid parameter entered, must be a number!" });
-        }
-
-        const foundLocation = locations.find((location) => {
-            return location.id === locationIdParam     //EXPLICIT RETURN
-        });
+        const foundLocation = await Location.findById(locationIdParam);
 
         if (!foundLocation) {
             return res.status(404).json({ Error: "Location not found, try a valid location id." });
@@ -40,7 +30,7 @@ export const getSpecificLocation = (req, res) => {
     }
 }
 
-export const getFilteredLocations = (req, res) => {
+export const getFilteredLocations = async (req, res) => {
     const queryItems = ["indoor", "outdoor", "indoor/outdoor"]
     try {
         const locationTypeQuery = req.query.type;
@@ -50,9 +40,9 @@ export const getFilteredLocations = (req, res) => {
         } else if (!queryItems.includes(locationTypeQuery)) {
             res.status(400).json({ Error: "Invalid query parameter entered, enter a valid query paramter" })
         } else {
-            const filterLocations = locations.filter((location) => location.locationType == locationTypeQuery); //IMPLICIT RETURN
-            res.json(filterLocations);
-            console.log(filterLocations);
+            const filteredLocations = Location.findOne({ type: locationTypeQuery });
+            res.json(filteredLocations);
+            console.log(filteredLocations);
         }
     } catch (error) {
         res.status(500).json({ Error: "Something went wrong" })
@@ -60,7 +50,7 @@ export const getFilteredLocations = (req, res) => {
 
 }
 
-export const postNewLocation = (req, res) => {
+export const postNewLocation = async (req, res) => {
     try {
         const { name, type, mapURL, affordability, rating } = req.body;
         if (name == null || type == null || mapURL == null || affordability == null || rating == null) {
@@ -68,18 +58,10 @@ export const postNewLocation = (req, res) => {
         } else if (!(affordability <= 5) || !(rating <= 5)) {
             return res.status(400).json({ Error: "enter a valid affordability or rating value" });
         } else {
-            const id = locations.length + 1;
-            const newLocation = {
-                id: id,
-                locationName: name,
-                locationType: type,
-                mapURL: mapURL,
-                affordability: affordability,
-                rating: rating,
-            };
-            locations.push(newLocation);
-            res.json(newLocation);
-            console.log(locations.slice(-1));
+            const newLocation = { name, type, mapURL, affordability, rating };
+            const location = Location.create(newLocation);
+            res.json(location);
+            console.log(location);
         }
 
     } catch (error) {

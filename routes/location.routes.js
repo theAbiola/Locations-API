@@ -1,6 +1,6 @@
 import express from "express";
 import {
-    getRandomLocation,
+    getAllLocations,
     getSpecificLocation,
     getFilteredLocations,
     postNewLocation,
@@ -12,7 +12,7 @@ import {
 
 const router = express.Router();
 
-router.get("/random", getRandomLocation);
+router.get("/all", getAllLocations);
 router.get("/:id", getSpecificLocation);
 router.get("/chunk/filter", getFilteredLocations);
 router.post("/new", postNewLocation);
