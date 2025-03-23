@@ -62,5 +62,13 @@
         "mapURL": "https://maps.app.goo.gl/wVqdk2WPeWtTaSRZ6",
         "affordability": 4.1,
         "rating": 4.0
+    },
+    {
+        "id": 9,
+        "locationName": "Savor Bistro, Wuse 2, Abuja",
+        "locationType": "indoor",
+        "mapURL": "https://maps.app.goo.gl/dGwop3SVSXCFM4J98",
+        "affordability": 4.4,
+        "rating": 4.3
     }
 ]
