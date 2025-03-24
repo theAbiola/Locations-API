@@ -70,5 +70,13 @@
         "mapURL": "https://maps.app.goo.gl/dGwop3SVSXCFM4J98",
         "affordability": 4.4,
         "rating": 4.3
+    },
+    {
+        "id": 10,
+        "locationName": "Papies Maestro, Ahmadu Bello way, Jahi, Abuja",
+        "locationType": "indoor",
+        "mapURL": "https://maps.app.goo.gl/Z59wzLm1Z1fuCbL56",
+        "affordability": 4.1,
+        "rating": 4.0
     }
 ]
