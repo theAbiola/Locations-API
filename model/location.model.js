@@ -32,7 +32,7 @@ const locationSchema = mongoose.Schema(
 )
 
 const Location = mongoose.model("location", locationSchema); //the const `Location` creates a model from the schema.
-// The argument "Location" is the name of the collection which would be pluralized by mongoose later in mongoDB.
+// The argument "location" is the name of the collection which would be pluralized by mongoose later in mongoDB.
 // "locationSchema" is the schema that the model is based on.
 
 export default Location;
