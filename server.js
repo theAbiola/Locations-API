@@ -25,6 +25,7 @@ app.use("/locations", locationRoutes);
 
 app.get("/", (req, res) => {
   res.send("Welcome to the Locations API"); //refactor later to render an actual static webpage that contains the API documentation.
+  //api documentation currently in progress
 });
 
 app.listen(port, () => {
