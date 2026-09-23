@@ -1,7 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import { connectDB } from "./db/db.js";
-import locationRoutes from "./routes/location.routes.js"
+import locationRouter from "./routes/locationRoutes.js"
 
 
 export const app = express();
@@ -13,7 +13,7 @@ app.use(express.json()); //Important to parse incoming JSON requests
 
 connectDB()
 
-app.use("/locations", locationRoutes);
+app.use("/locations", locationRouter);
 
 
 app.get("/", (req, res) => {
