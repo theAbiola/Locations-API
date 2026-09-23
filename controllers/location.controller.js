@@ -1,6 +1,5 @@
-import env from "dotenv";
-import Location from "../model/location.model.js";
-env.config();
+import Location from "../models/Location.js";
+
 
 export const getAllLocations = async (req, res) => {
     try {
