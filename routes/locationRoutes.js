@@ -1,8 +1,7 @@
 import express from "express";
 import {
-    getAllLocations,
-    getSpecificLocation,
-    getFilteredLocations,
+    getLocations,
+    getLocationById, 
     postNewLocation,
     putLocation,
     deleteSpecificLocation,
@@ -10,10 +9,9 @@ import {
 
 const locationRouter = express.Router();
 
-locationRouter.get("/all", getAllLocations);
-locationRouter.get("/:id", getSpecificLocation);
-locationRouter.get("/chunk/filter", getFilteredLocations);
-locationRouter.post("/new", postNewLocation);
+locationRouter.get("/", getLocations);
+locationRouter.get("/:id", getLocationById);
+locationRouter.post("/", postNewLocation);
 locationRouter.put("/:id", putLocation);
 locationRouter.delete("/:id", deleteSpecificLocation);
 

@@ -13,7 +13,7 @@ app.use(express.json()); //Important to parse incoming JSON requests
 
 connectDB()
 
-app.use("/locations", locationRouter);
+app.use("/api/locations", locationRouter);
 
 
 app.get("/", (req, res) => {
