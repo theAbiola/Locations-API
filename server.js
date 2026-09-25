@@ -1,5 +1,7 @@
 import "dotenv/config";
 import express from "express";
+import cors from "cors"
+
 import { connectDB } from "./db/db.js";
 import locationRouter from "./routes/locationRoutes.js"
 
@@ -7,6 +9,24 @@ import locationRouter from "./routes/locationRoutes.js"
 export const app = express();
 
 const PORT = process.env.API_PORT;
+
+const corsOptions = {
+  origin: process.env.CLIENT_ORIGIN || "http://localhost:3000",
+  credentials: true,
+  methods: [
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE"
+  ],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization'
+  ],
+}
+
+app.use(cors(corsOptions))
+
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); //Important to parse incoming JSON requests

@@ -42,9 +42,9 @@ export const getLocations = async (req, res) => {
 
             const affordabilityNumber = Number(affordability)
 
-            if (!Number.isFinite(affordabilityNumber)) {
+            if (!Number.isFinite(affordabilityNumber) || affordabilityNumber < 0 || affordabilityNumber > 5) {
                 return res.status(400).json({
-                    Error: "affordability must be a number"
+                    Error: "affordability must be a number between 0 and 5"
                 })
             }
 
@@ -61,9 +61,9 @@ export const getLocations = async (req, res) => {
 
             const ratingNumber = Number(rating)
 
-            if (!Number.isFinite(ratingNumber)) {
+            if (!Number.isFinite(ratingNumber) || ratingNumber < 0 || ratingNumber > 5) {
                 return res.status(400).json({
-                    Error: "rating must be a number"
+                    Error: "rating must be a number between 0 and 5"
                 })
             }
 
