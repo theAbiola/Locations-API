@@ -11,7 +11,7 @@ const PORT = process.env.API_PORT;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json()); //Important to parse incoming JSON requests
 
-connectDB()
+await connectDB()
 
 app.use("/api/locations", locationRouter);
 
@@ -21,11 +21,14 @@ app.get("/", (req, res) => {
   //api documentation currently in progress
 });
 
+
+// catch-all middleware for unsupported endpoints
 app.use((req, res) => {
   res.status(404).json({ 
     message: "Endpoint not found. Please check the API documentation."
     })
 })
+
 
 app.listen(PORT, () => {
   console.log(`API running on port http://localhost:${PORT}`);

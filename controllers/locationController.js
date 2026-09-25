@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Location from "../models/Location.js";
 
 
@@ -7,22 +8,41 @@ export const getLocations = async (req, res) => {
         const { locationType, affordability, rating } = req.query
         const filters = {}
 
-        if(locationType !== undefined) {
-            if(typeof locationType !== "string") {
+        if (locationType !== undefined) {
+            if (typeof locationType !== "string" || locationType.trim() === "") {
                 return res.status(400).json({
-                    Error: "locationType must be a single string"
+                    Error: "locationType must be a non-empty string"
                 })
             }
 
-            filters.locationType = locationType.trim().toLowerCase()
+            const normalizedLocationType = locationType.trim().toLowerCase()
+
+            const allowedLocationTypes = [
+                "indoor",
+                "outdoor",
+                "indoor/outdoor"
+            ]
+
+            if (!allowedLocationTypes.includes(normalizedLocationType)) {
+                return res.status(400).json({
+                    Error: "locationType must be indoor, outdoor, or indoor/outdoor"
+                })
+            }
+            filters.locationType = normalizedLocationType
         }
 
 
 
-        if(affordability !== undefined) {
+        if (affordability !== undefined) {
+            if (typeof affordability !== "string" || affordability.trim() === "") {
+                return res.status(400).json({
+                    Error: "affordability must be a single number"
+                })
+            }
+
             const affordabilityNumber = Number(affordability)
-            
-            if(!Number.isFinite(affordabilityNumber)) {
+
+            if (!Number.isFinite(affordabilityNumber)) {
                 return res.status(400).json({
                     Error: "affordability must be a number"
                 })
@@ -32,10 +52,16 @@ export const getLocations = async (req, res) => {
         }
 
 
-        if(rating !== undefined) {
+        if (rating !== undefined) {
+            if (typeof rating !== "string" || rating.trim() === "") {
+                return res.status(400).json({
+                    Error: "rating must be a single number"
+                })
+            }
+
             const ratingNumber = Number(rating)
 
-            if(!Number.isFinite(ratingNumber)){
+            if (!Number.isFinite(ratingNumber)) {
                 return res.status(400).json({
                     Error: "rating must be a number"
                 })
@@ -48,8 +74,8 @@ export const getLocations = async (req, res) => {
 
         res.status(200).json(locations);
     } catch (error) {
-        res.status(500).json({ 
-            Error: error.message || "Something went wrong" 
+        res.status(500).json({
+            Error: "Internal Server Error!"
         })
     }
 }
@@ -58,7 +84,7 @@ export const getLocationById = async (req, res) => {
     try {
         const { id } = req.params;
 
-        if(!mongoose.isValidObjectId(id)) {
+        if (!mongoose.isValidObjectId(id)) {
             return res.status(400).json({
                 Error: "Invalid location id"
             })
@@ -67,15 +93,15 @@ export const getLocationById = async (req, res) => {
         const foundLocation = await Location.findById(id);
 
         if (!foundLocation) {
-            return res.status(404).json({ 
-                Error: "Location not found, try a valid location id." 
+            return res.status(404).json({
+                Error: "Location not found, try a valid location id."
             });
         }
 
         res.status(200).json(foundLocation);
     } catch (error) {
-        res.status(500).json({ 
-            Error: "Something went wrong" 
+        res.status(500).json({
+            Error: "Internal Server Error!"
         })
     }
 }
@@ -83,31 +109,62 @@ export const getLocationById = async (req, res) => {
 
 export const postNewLocation = async (req, res) => {
     try {
-        const { 
-            locationName, 
-            locationType, 
-            mapURL, 
-            affordability, 
-            rating 
+        const {
+            locationName,
+            locationType,
+            mapURL,
+            affordability,
+            rating
         } = req.body;
-        
-        if (locationName == null || locationType == null || mapURL == null || affordability == null || rating == null) {
-            return res.status(400).json({ 
-                Error: "expected input is empty, try again" 
+
+        // Validate field types
+        if (
+            typeof locationName !== "string" ||
+            typeof locationType !== "string" ||
+            typeof mapURL !== "string" ||
+            !Number.isFinite(affordability) ||
+            !Number.isFinite(rating)
+        ) {
+            return res.status(400).json({
+                Error: "Please provide valid values for all required fields"
             });
-        } else if (!(affordability <= 5) || !(rating <= 5)) {
-            return res.status(400).json({ 
-                Error: "enter a valid affordability or rating value" 
-            });
-        } else {
-            const newLocation = req.body;
-            const location = await Location.create(newLocation);
-            res.status(201).json(location);
-            console.log(location);
         }
 
+
+        // Reject empty or whitespace-only strings
+        if (
+            !locationName.trim() ||
+            !locationType.trim() ||
+            !mapURL.trim()
+        ) {
+            return res.status(400).json({
+                Error: "String fields cannot be empty"
+            });
+        }
+
+
+        const newLocation = {
+            locationName: locationName.trim(),
+            locationType: locationType.trim().toLowerCase(),
+            mapURL: mapURL.trim(),
+            affordability,
+            rating
+        };
+
+        const location = await Location.create(newLocation);
+
+        return res.status(201).json(location);
+
     } catch (error) {
-        res.status(500).json({ Error: "Something went wrong!" })
+        if (error.name === "ValidationError") {
+            return res.status(400).json({
+                Error: error.message
+            })
+        }
+
+        return res.status(500).json({
+            Error: "Internal Server Error!"
+        })
     }
 
 }
@@ -116,64 +173,74 @@ export const putLocation = async (req, res) => {
     try {
         const { id } = req.params;
 
-        if(!mongoose.isValidObjectId(id)) {
+        if (!mongoose.isValidObjectId(id)) {
             return res.status(400).json({
                 Error: "Invalid location id"
             })
         }
-        
-        const { 
-            locationName, 
-            locationType, 
-            mapURL, 
-            affordability, 
-            rating 
+
+        const {
+            locationName,
+            locationType,
+            mapURL,
+            affordability,
+            rating
         } = req.body;
 
+        // First: verify the data types
         if (
-            typeof locationName !== "string" || 
-            locationType == "string" || 
-            mapURL == "string" || 
-            affordability == null || 
+            typeof locationName !== "string" ||
+            typeof locationType !== "string" ||
+            typeof mapURL !== "string" ||
+            affordability == null ||
             rating == null
         ) {
-            return res.status(400).json({ 
-                Error: "expected input is empty, try again" 
+            return res.status(400).json({
+                Error: "expected input is empty, try again"
             });
-        } 
-        
-        const affordabilityNumber = Number(affordability)
-        const ratingNumber = Number(rating)
-        
+        }
+
+        // Second: safely check for empty or whitespace-only strings
         if (
-            !Number.isFinite(affordabilityNumber) ||
-            !Number.isFinite(ratingNumber) ||
-            affordabilityNumber < 0 ||
-            affordabilityNumber > 5 ||
-            ratingNumber < 0 ||
-            ratingNumber > 5
+            !locationName.trim() ||
+            !locationType.trim() ||
+            !mapURL.trim()
         ) {
-            return res.status(400).json({ 
+            return res.status(400).json({
+                Error: "String fields cannot be empty"
+            });
+        }
+
+        // Third: validate the numeric fields
+        if (
+            !Number.isFinite(affordability) ||
+            !Number.isFinite(rating) ||
+            affordability < 0 ||
+            affordability > 5 ||
+            rating < 0 ||
+            rating > 5
+        ) {
+            return res.status(400).json({
                 Error: "Affordability and rating must be numbers between 0 and 5"
             });
-        } 
-        
+        }
+
+        // Finally: construct the validated update
         const updatedLocation = {
             locationName: locationName.trim(),
             locationType: locationType.trim(),
             mapURL: mapURL.trim(),
-            affordability: affordabilityNumber,
-            rating: ratingNumber
+            affordability: affordability,
+            rating: rating
         }
 
-
         const location = await Location.findByIdAndUpdate(
-            id, 
+            id,
             updatedLocation,
-             { new: true, runValidators: true }
-            );
+            { new: true, runValidators: true }
+        );
 
-        if(!location) {
+        if (!location) {
             return res.status(404).json({
                 Error: "Location not found"
             })
@@ -183,8 +250,14 @@ export const putLocation = async (req, res) => {
         console.log(location);
 
     } catch (error) {
-        res.status(500).json({ 
-            Error: "Something went wrong!" 
+        if (error.name === "ValidationError") {
+            return res.status(400).json({
+                Error: error.message
+            })
+        }
+
+        return res.status(500).json({
+            Error: "Internal Server Error!"
         })
     }
 
@@ -193,17 +266,28 @@ export const putLocation = async (req, res) => {
 
 export const deleteSpecificLocation = async (req, res) => {
     try {
-        const locationId = req.params.id;
+        const { id } = req.params;
 
-        const location = await Location.findByIdAndDelete(locationId);
+        if (!mongoose.isValidObjectId(id)) {
+            return res.status(400).json({
+                Error: "Invalid location id"
+            })
+        }
+
+        const location = await Location.findByIdAndDelete(id);
+
         if (!location) {
-            return res.status(404).json({ Error: "location not found, try a valid location id" })
+            return res.status(404).json({
+                Error: "Location not found, try a valid location id"
+            })
         }
 
         res.status(200).json({ Success: "Location deleted successfully!" });
 
     } catch (error) {
-        res.status(500).json({ Error: "Something went wrong!" });
+        return res.status(500).json({
+            Error: "Internal Server Error!"
+        });
     }
 
 }

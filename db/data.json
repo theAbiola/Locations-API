@@ -14,18 +14,18 @@
         "rating": 4.5
     },
     {
-        "locationName": "The Milkshop and Breakfast company, Maitama, Abuja",
-        "locationType": "indoor",
-        "mapURL": "https://maps.app.goo.gl/zghgpdGb8MhVMeqH6",
-        "affordability": 4.5,
-        "rating": 3.5
-    },
-    {
         "locationName": "Truck Central, Central Business District, Abuja",
         "locationType": "outdoor",
         "mapURL": "https://maps.app.goo.gl/Jo1d9Q1Yf151Edzq7",
         "affordability": 3,
         "rating": 4.5
+    },
+    {
+        "locationName": "The Milkshop and Breakfast company, Maitama, Abuja",
+        "locationType": "indoor",
+        "mapURL": "https://maps.app.goo.gl/zghgpdGb8MhVMeqH6",
+        "affordability": 4.5,
+        "rating": 3.5
     },
     {
         "locationName": "Jabi Boat Club, Jabi, Abuja.",
