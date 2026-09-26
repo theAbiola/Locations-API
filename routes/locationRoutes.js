@@ -1,11 +1,11 @@
 import express from "express";
 import {
-    getLocations,
-    getLocationById, 
-    postNewLocation,
-    putLocation,
-    deleteSpecificLocation,
-} from "../controllers/locationController.js"
+  getLocations,
+  getLocationById,
+  postNewLocation,
+  putLocation,
+  deleteSpecificLocation,
+} from "../controllers/locationController.js";
 
 const locationRouter = express.Router();
 
@@ -16,4 +16,3 @@ locationRouter.put("/:id", putLocation);
 locationRouter.delete("/:id", deleteSpecificLocation);
 
 export default locationRouter;
-
