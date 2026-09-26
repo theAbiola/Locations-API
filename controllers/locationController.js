@@ -222,7 +222,6 @@ export const putLocation = async (req, res) => {
     }
 
     res.status(200).json(location);
-    console.log(location);
   } catch (error) {
     if (error.name === "ValidationError") {
       return res.status(400).json({

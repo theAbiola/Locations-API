@@ -8,8 +8,10 @@ export const connectDB = async () => {
       throw new Error("MONGODB_URI is not defined");
     }
     await mongoose.connect(URI);
+    // eslint-disable-next-line no-console
     console.log("MongoDB connected successfully!");
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error("MongoDB connection error: ", err.message);
     process.exit(1);
   }
