@@ -4,6 +4,7 @@ import cors from "cors";
 
 import { connectDB } from "./db/db.js";
 import locationRouter from "./routes/locationRoutes.js";
+import { healthController } from "./controllers/healthController.js";
 
 export const app = express();
 
@@ -35,6 +36,8 @@ app.get("/", (req, res) => {
     },
   });
 });
+
+app.get("/health", healthController);
 
 app.use("/api/locations", locationRouter);
 
