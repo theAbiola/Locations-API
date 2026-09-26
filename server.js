@@ -23,12 +23,20 @@ app.use(express.json()); //Important to parse incoming JSON requests
 
 await connectDB();
 
-app.use("/api/locations", locationRouter);
-
 app.get("/", (req, res) => {
-  res.send("Welcome to the Locations API"); //refactor later to render an actual static webpage that contains the API documentation.
-  //api documentation currently in progress
+  return res.status(200).json({
+    message: "Welcome to the Locations API",
+    name: "Locations API",
+    version: "1.0.0",
+    status: "available",
+    endpoints: {
+      locations: "/api/locations",
+      health: "/health",
+    },
+  });
 });
+
+app.use("/api/locations", locationRouter);
 
 // catch-all middleware for unsupported endpoints
 app.use((req, res) => {
