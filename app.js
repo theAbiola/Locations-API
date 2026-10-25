@@ -78,8 +78,6 @@ export const createApp = ({ sessionStore } = {}) => {
       version: "1.0.0",
       status: "available",
       endpoints: {
-        auth: "/api/locations/auth",
-        locations: "/api/locations",
         health: "/health",
       },
     });
