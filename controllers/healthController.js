@@ -14,12 +14,13 @@ export const healthController = async (req, res) => {
     await mongoose.connection.db.admin().ping();
 
     return res.status(200).json({
+      success: true,
       status: "ok",
       database: "connected",
       uptime: process.uptime(),
       timestamp: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch {
     return res.status(503).json({
       status: "unavailable",
       database: "unreachable",

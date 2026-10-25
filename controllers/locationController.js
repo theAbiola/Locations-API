@@ -72,7 +72,7 @@ export const getLocations = async (req, res) => {
     const locations = await Location.find(filters);
 
     res.status(200).json(locations);
-  } catch (error) {
+  } catch {
     res.status(500).json({
       Error: "Internal Server Error!",
     });
@@ -85,7 +85,8 @@ export const getLocationById = async (req, res) => {
 
     if (!mongoose.isValidObjectId(id)) {
       return res.status(400).json({
-        Error: "Invalid location id",
+        success: false,
+        message: "Invalid location id",
       });
     }
 
@@ -93,12 +94,13 @@ export const getLocationById = async (req, res) => {
 
     if (!foundLocation) {
       return res.status(404).json({
-        Error: "Location not found, try a valid location id.",
+        success: false,
+        message: "Location not found, try a valid location id.",
       });
     }
 
     res.status(200).json(foundLocation);
-  } catch (error) {
+  } catch {
     res.status(500).json({
       Error: "Internal Server Error!",
     });
@@ -254,7 +256,7 @@ export const deleteSpecificLocation = async (req, res) => {
     }
 
     res.status(200).json({ Success: "Location deleted successfully!" });
-  } catch (error) {
+  } catch {
     return res.status(500).json({
       Error: "Internal Server Error!",
     });
