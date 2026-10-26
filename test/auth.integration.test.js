@@ -19,7 +19,7 @@ let app;
 
 const validUser = {
   email: "user@example.com",
-  password: "correct-horse-battery-staple",
+  password: "Correct-horse-battery-staple!",
 };
 
 before(async () => {
@@ -78,6 +78,29 @@ describe("authentication", () => {
     assert.match(response.body.message, /Role cannot be assigned/);
   });
 
+  test("rejects credentials that do not satisfy the validation policy", async () => {
+    const invalidPasswords = [
+      "lowercase-password!",
+      "Uppercasepassword",
+      "Short1!",
+    ];
+
+    for (const password of invalidPasswords) {
+      const response = await request(app)
+        .post("/api/auth/register")
+        .send({ email: `${password}@example.com`, password })
+        .expect(400);
+
+      assert.equal(response.body.success, false);
+    }
+
+    const invalidEmail = await request(app)
+      .post("/api/auth/register")
+      .send({ email: "not-an-email", password: validUser.password })
+      .expect(400);
+    assert.match(invalidEmail.body.message, /valid email/i);
+  });
+
   test("logs in with valid credentials and uses generic failures", async () => {
     await request(app).post("/api/auth/register").send(validUser).expect(201);
 
@@ -95,7 +118,12 @@ describe("authentication", () => {
       .post("/api/auth/login")
       .send({ ...validUser, password: "incorrect-password" })
       .expect(401);
+    const invalidPolicy = await request(app)
+      .post("/api/auth/login")
+      .send({ ...validUser, password: "incorrect-password!" })
+      .expect(401);
     assert.equal(unknown.body.message, incorrect.body.message);
+    assert.equal(invalidPolicy.body.message, incorrect.body.message);
   });
 
   test("returns the current user and invalidates the session on logout", async () => {
@@ -199,13 +227,13 @@ describe("location authorization", () => {
 describe("administrator bootstrap", () => {
   test("is idempotent and does not overwrite an existing account", async () => {
     process.env.ADMIN_EMAIL = "bootstrap@example.com";
-    process.env.ADMIN_PASSWORD = "bootstrap-password";
+    process.env.ADMIN_PASSWORD = "Bootstrap-password!";
 
     const first = await bootstrapAdmin();
     const originalHash = (await User.findById(first.id).select("+passwordHash"))
       .passwordHash;
 
-    process.env.ADMIN_PASSWORD = "different-password";
+    process.env.ADMIN_PASSWORD = "Different-password!";
     const second = await bootstrapAdmin();
     const stored = await User.findById(second.id).select("+passwordHash");
 
@@ -228,5 +256,21 @@ describe("administrator bootstrap", () => {
 
     const result = await bootstrapAdmin();
     assert.equal(result.role, "user");
+  });
+
+  test("rejects invalid administrator credentials", async () => {
+    process.env.ADMIN_EMAIL = "invalid-admin-email";
+    process.env.ADMIN_PASSWORD = "weak-password";
+
+    await assert.rejects(
+      () => bootstrapAdmin(),
+      /Invalid administrator credentials: Enter a valid email address/,
+    );
+
+    process.env.ADMIN_EMAIL = "admin@example.com";
+    await assert.rejects(
+      () => bootstrapAdmin(),
+      /Invalid administrator credentials: Password must contain at least one uppercase character/,
+    );
   });
 });

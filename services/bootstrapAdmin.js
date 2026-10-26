@@ -1,5 +1,9 @@
 import bcrypt from "bcrypt";
 import User from "../models/User.js";
+import {
+  credentialsSchema,
+  getValidationMessage,
+} from "../validation/authValidation.js";
 
 const BCRYPT_ROUNDS = 12;
 
@@ -17,24 +21,31 @@ export const bootstrapAdmin = async () => {
     );
   }
 
-  if (password.length < 12 || Buffer.byteLength(password, "utf8") > 72) {
+  const credentials = credentialsSchema.safeParse({ email, password });
+  if (!credentials.success) {
     throw new Error(
-      "ADMIN_PASSWORD must be at least 12 characters and at most 72 bytes",
+      `Invalid administrator credentials: ${getValidationMessage(credentials.error)}`,
     );
   }
 
-  const existingUser = await User.findOne({ email });
+  const { email: normalizedEmail, password: normalizedPassword } =
+    credentials.data;
+  const existingUser = await User.findOne({ email: normalizedEmail });
   if (existingUser) {
     return existingUser;
   }
 
-  const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+  const passwordHash = await bcrypt.hash(normalizedPassword, BCRYPT_ROUNDS);
   try {
-    return await User.create({ email, passwordHash, role: "admin" });
+    return await User.create({
+      email: normalizedEmail,
+      passwordHash,
+      role: "admin",
+    });
   } catch (error) {
     if (error?.code === 11000) {
       // Duplicate admin user check
-      return User.findOne({ email });
+      return User.findOne({ email: normalizedEmail });
     }
     throw error;
   }
