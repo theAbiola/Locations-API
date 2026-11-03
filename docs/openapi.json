@@ -1,0 +1,331 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Locations API",
+    "version": "1.0.0",
+    "description": "Authenticated API for discovering and managing locations."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:{port}",
+      "variables": {
+        "port": {
+          "default": "4000",
+          "description": "The local API port."
+        }
+      }
+    }
+  ],
+  "tags": [
+    { "name": "Health", "description": "Service availability." },
+    { "name": "Authentication", "description": "Session authentication." },
+    {
+      "name": "Locations",
+      "description": "Location discovery and administration."
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "locations.sid",
+        "description": "HTTP-only session cookie set by registration or login."
+      }
+    },
+    "schemas": {
+      "Credentials": {
+        "type": "object",
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "example": "user@example.com"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "minLength": 12,
+            "maxLength": 72,
+            "description": "Must contain an uppercase character and a special character."
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "required": ["id", "email", "role"],
+        "properties": {
+          "id": { "type": "string", "example": "671a1c9f3f5e8c1d9e3f6a12" },
+          "email": { "type": "string", "format": "email" },
+          "role": { "type": "string", "enum": ["user", "admin"] }
+        }
+      },
+      "Location": {
+        "type": "object",
+        "required": [
+          "locationName",
+          "locationType",
+          "mapURL",
+          "affordability",
+          "rating"
+        ],
+        "properties": {
+          "_id": { "type": "string", "example": "671a1c9f3f5e8c1d9e3f6a12" },
+          "locationName": { "type": "string", "example": "City Museum" },
+          "locationType": {
+            "type": "string",
+            "enum": ["indoor", "outdoor", "indoor/outdoor"]
+          },
+          "mapURL": {
+            "type": "string",
+            "format": "uri",
+            "example": "https://maps.example/museum"
+          },
+          "affordability": { "type": "number", "minimum": 0, "maximum": 5 },
+          "rating": { "type": "number", "minimum": 0, "maximum": 5 },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "Success": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": true },
+          "message": { "type": "string" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean", "example": false },
+          "message": { "type": "string" },
+          "Error": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Check service health",
+        "responses": {
+          "200": { "description": "The service is available." }
+        }
+      }
+    },
+    "/": {
+      "get": {
+        "tags": ["Health"],
+        "summary": "Get API welcome information",
+        "responses": {
+          "200": { "description": "API metadata and public endpoint links." }
+        }
+      }
+    },
+    "/api/locations/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register a user and start a session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Credentials" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User registered; sets the locations.sid cookie.",
+            "headers": { "Set-Cookie": { "schema": { "type": "string" } } }
+          },
+          "400": {
+            "description": "Invalid credentials or a role was supplied."
+          },
+          "409": { "description": "Email already exists." }
+        }
+      }
+    },
+    "/api/locations/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Log in and start a session",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Credentials" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authenticated; sets the locations.sid cookie."
+          },
+          "401": { "description": "Invalid email or password." }
+        }
+      }
+    },
+    "/api/locations/auth/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "End the current session",
+        "security": [{ "sessionCookie": [] }],
+        "responses": {
+          "200": { "description": "Session ended." },
+          "401": { "description": "Authentication required." }
+        }
+      }
+    },
+    "/api/locations/auth/me": {
+      "get": {
+        "tags": ["Authentication"],
+        "summary": "Get the current user",
+        "security": [{ "sessionCookie": [] }],
+        "responses": {
+          "200": {
+            "description": "Current user.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/User" }
+              }
+            }
+          },
+          "401": { "description": "Authentication required." }
+        }
+      }
+    },
+    "/api/locations": {
+      "get": {
+        "tags": ["Locations"],
+        "summary": "List locations",
+        "security": [{ "sessionCookie": [] }],
+        "parameters": [
+          {
+            "name": "locationType",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["indoor", "outdoor", "indoor/outdoor"]
+            }
+          },
+          {
+            "name": "affordability",
+            "in": "query",
+            "schema": { "type": "number", "minimum": 0, "maximum": 5 }
+          },
+          {
+            "name": "rating",
+            "in": "query",
+            "schema": { "type": "number", "minimum": 0, "maximum": 5 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Matching locations.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Location" }
+                }
+              }
+            }
+          },
+          "400": { "description": "Invalid filter." },
+          "401": { "description": "Authentication required." }
+        }
+      },
+      "post": {
+        "tags": ["Locations"],
+        "summary": "Create a location",
+        "security": [{ "sessionCookie": [] }],
+        "description": "Requires an authenticated administrator.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  { "$ref": "#/components/schemas/Location" },
+                  {
+                    "required": [
+                      "locationName",
+                      "locationType",
+                      "mapURL",
+                      "affordability",
+                      "rating"
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Location created." },
+          "400": { "description": "Invalid location data." },
+          "401": { "description": "Authentication required." },
+          "403": { "description": "Administrator role required." }
+        }
+      }
+    },
+    "/api/locations/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "string" },
+          "description": "MongoDB location identifier."
+        }
+      ],
+      "get": {
+        "tags": ["Locations"],
+        "summary": "Get a location",
+        "security": [{ "sessionCookie": [] }],
+        "responses": {
+          "200": { "description": "The requested location." },
+          "400": { "description": "Invalid location identifier." },
+          "401": { "description": "Authentication required." },
+          "404": { "description": "Location not found." }
+        }
+      },
+      "put": {
+        "tags": ["Locations"],
+        "summary": "Update a location",
+        "security": [{ "sessionCookie": [] }],
+        "description": "Requires an authenticated administrator.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/Location" }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Location updated." },
+          "400": { "description": "Invalid identifier or location data." },
+          "401": { "description": "Authentication required." },
+          "403": { "description": "Administrator role required." },
+          "404": { "description": "Location not found." }
+        }
+      },
+      "delete": {
+        "tags": ["Locations"],
+        "summary": "Delete a location",
+        "security": [{ "sessionCookie": [] }],
+        "description": "Requires an authenticated administrator.",
+        "responses": {
+          "200": { "description": "Location deleted." },
+          "401": { "description": "Authentication required." },
+          "403": { "description": "Administrator role required." },
+          "404": { "description": "Location not found." }
+        }
+      }
+    }
+  }
+}

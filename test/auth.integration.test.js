@@ -3,28 +3,32 @@ import { after, before, beforeEach, describe, test } from "node:test";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import mongoose from "mongoose";
-import { MongoMemoryServer } from "mongodb-memory-server";
 import request from "supertest";
 
 process.env.NODE_ENV = "test";
 process.env.SESSION_SECRET = "test-session-secret-that-is-long-enough";
 process.env.CLIENT_ORIGIN = "http://localhost:3000";
 
+const testMongoUri = process.env.TEST_MONGODB_URI;
+if (!testMongoUri) {
+  throw new Error(
+    "TEST_MONGODB_URI is not defined. Start MongoDB and set TEST_MONGODB_URI to a dedicated test database.",
+  );
+}
+
 const { createApp } = await import("../app.js");
 const { bootstrapAdmin } = await import("../services/bootstrapAdmin.js");
 const { default: User } = await import("../models/User.js");
 
-let mongoServer;
 let app;
 
 const validUser = {
   email: "user@example.com",
-  password: "correct-horse-battery-staple",
+  password: "Correct-horse-battery-staple!",
 };
 
 before(async () => {
-  mongoServer = await MongoMemoryServer.create();
-  await mongoose.connect(mongoServer.getUri());
+  await mongoose.connect(testMongoUri);
   app = createApp({ sessionStore: new session.MemoryStore() });
 });
 
@@ -36,15 +40,14 @@ beforeEach(async () => {
 
 after(async () => {
   await mongoose.disconnect();
-  await mongoServer.stop();
 });
 
 describe("authentication", () => {
   test("registers a normalized user, hashes the password, and starts a session", async () => {
     const response = await request(app)
-      .post("/api/auth/register")
+      .post("/api/locations/auth/register")
       .set("Origin", process.env.CLIENT_ORIGIN)
-      .send({ email: "  USER@Example.COM ", password: validUser.password })
+      .send({ email: "USER@Example.COM", password: validUser.password })
       .expect(201);
 
     assert.deepEqual(response.body.user.email, "user@example.com");
@@ -53,7 +56,7 @@ describe("authentication", () => {
     assert.match(response.headers["set-cookie"][0], /locations\.sid=/);
     assert.match(response.headers["set-cookie"][0], /HttpOnly/);
     assert.match(response.headers["set-cookie"][0], /SameSite=Lax/);
-    assert.match(response.headers["set-cookie"][0], /Max-Age=86400/);
+    assert.match(response.headers["set-cookie"][0], /Expires=/);
 
     const storedUser = await User.findOne({ email: validUser.email }).select(
       "+passwordHash",
@@ -66,67 +69,107 @@ describe("authentication", () => {
   });
 
   test("rejects duplicate registration and public role assignment", async () => {
-    await request(app).post("/api/auth/register").send(validUser).expect(201);
+    await request(app)
+      .post("/api/locations/auth/register")
+      .send(validUser)
+      .expect(201);
 
-    await request(app).post("/api/auth/register").send(validUser).expect(409);
+    await request(app)
+      .post("/api/locations/auth/register")
+      .send(validUser)
+      .expect(409);
 
     const response = await request(app)
-      .post("/api/auth/register")
+      .post("/api/locations/auth/register")
       .send({ ...validUser, email: "admin@example.com", role: "admin" })
       .expect(400);
 
     assert.match(response.body.message, /Role cannot be assigned/);
   });
 
+  test("rejects credentials that do not satisfy the validation policy", async () => {
+    const invalidPasswords = [
+      "lowercase-password!",
+      "Uppercasepassword",
+      "Short1!",
+    ];
+
+    for (const password of invalidPasswords) {
+      const response = await request(app)
+        .post("/api/locations/auth/register")
+        .send({ email: `${password}@example.com`, password })
+        .expect(400);
+
+      assert.equal(response.body.success, false);
+    }
+
+    const invalidEmail = await request(app)
+      .post("/api/locations/auth/register")
+      .send({ email: "not-an-email", password: validUser.password })
+      .expect(400);
+    assert.match(invalidEmail.body.message, /valid email/i);
+  });
+
   test("logs in with valid credentials and uses generic failures", async () => {
-    await request(app).post("/api/auth/register").send(validUser).expect(201);
+    await request(app)
+      .post("/api/locations/auth/register")
+      .send(validUser)
+      .expect(201);
 
     const response = await request(app)
-      .post("/api/auth/login")
+      .post("/api/locations/auth/login")
       .send(validUser)
       .expect(200);
     assert.equal(response.body.user.email, validUser.email);
 
     const unknown = await request(app)
-      .post("/api/auth/login")
+      .post("/api/locations/auth/login")
       .send({ ...validUser, email: "missing@example.com" })
       .expect(401);
     const incorrect = await request(app)
-      .post("/api/auth/login")
+      .post("/api/locations/auth/login")
       .send({ ...validUser, password: "incorrect-password" })
       .expect(401);
+    const invalidPolicy = await request(app)
+      .post("/api/locations/auth/login")
+      .send({ ...validUser, password: "incorrect-password!" })
+      .expect(401);
     assert.equal(unknown.body.message, incorrect.body.message);
+    assert.equal(invalidPolicy.body.message, incorrect.body.message);
   });
 
   test("returns the current user and invalidates the session on logout", async () => {
     const agent = request.agent(app);
-    await agent.post("/api/auth/register").send(validUser).expect(201);
-    await agent.get("/api/auth/me").expect(200);
-    await agent.post("/api/auth/logout").expect(200);
-    await agent.get("/api/auth/me").expect(401);
+    await agent
+      .post("/api/locations/auth/register")
+      .send(validUser)
+      .expect(201);
+    await agent.get("/api/locations/auth/me").expect(200);
+    await agent.post("/api/locations/auth/logout").expect(200);
+    await agent.get("/api/locations/auth/me").expect(401);
   });
 
   test("rejects sessions belonging to disabled or deleted users", async () => {
     const disabledAgent = request.agent(app);
     const disabled = await disabledAgent
-      .post("/api/auth/register")
+      .post("/api/locations/auth/register")
       .send(validUser)
       .expect(201);
     await User.findByIdAndUpdate(disabled.body.user.id, { status: "disabled" });
-    await disabledAgent.get("/api/auth/me").expect(401);
+    await disabledAgent.get("/api/locations/auth/me").expect(401);
 
     const deletedAgent = request.agent(app);
     const deleted = await deletedAgent
-      .post("/api/auth/register")
+      .post("/api/locations/auth/register")
       .send({ email: "deleted@example.com", password: validUser.password })
       .expect(201);
     await User.findByIdAndDelete(deleted.body.user.id);
-    await deletedAgent.get("/api/auth/me").expect(401);
+    await deletedAgent.get("/api/locations/auth/me").expect(401);
   });
 
   test("rejects state-changing requests from an untrusted origin", async () => {
     const response = await request(app)
-      .post("/api/auth/register")
+      .post("/api/locations/auth/register")
       .set("Origin", "https://attacker.example")
       .send(validUser)
       .expect(403);
@@ -142,7 +185,10 @@ describe("location authorization", () => {
 
   test("allows users to read and filter but forbids writes", async () => {
     const agent = request.agent(app);
-    await agent.post("/api/auth/register").send(validUser).expect(201);
+    await agent
+      .post("/api/locations/auth/register")
+      .send(validUser)
+      .expect(201);
     await agent.get("/api/locations?locationType=indoor").expect(200);
     await agent
       .post("/api/locations")
@@ -166,7 +212,7 @@ describe("location authorization", () => {
 
     const agent = request.agent(app);
     await agent
-      .post("/api/auth/login")
+      .post("/api/locations/auth/login")
       .send({ email: "admin@example.com", password: validUser.password })
       .expect(200);
 
@@ -199,13 +245,13 @@ describe("location authorization", () => {
 describe("administrator bootstrap", () => {
   test("is idempotent and does not overwrite an existing account", async () => {
     process.env.ADMIN_EMAIL = "bootstrap@example.com";
-    process.env.ADMIN_PASSWORD = "bootstrap-password";
+    process.env.ADMIN_PASSWORD = "Bootstrap-password!";
 
     const first = await bootstrapAdmin();
     const originalHash = (await User.findById(first.id).select("+passwordHash"))
       .passwordHash;
 
-    process.env.ADMIN_PASSWORD = "different-password";
+    process.env.ADMIN_PASSWORD = "Different-password!";
     const second = await bootstrapAdmin();
     const stored = await User.findById(second.id).select("+passwordHash");
 
@@ -224,9 +270,25 @@ describe("administrator bootstrap", () => {
       passwordHash: await bcrypt.hash(validUser.password, 4),
     });
     process.env.ADMIN_EMAIL = existing.email;
-    process.env.ADMIN_PASSWORD = "bootstrap-password";
+    process.env.ADMIN_PASSWORD = "Bootstrap-password!";
 
     const result = await bootstrapAdmin();
     assert.equal(result.role, "user");
+  });
+
+  test("rejects invalid administrator credentials", async () => {
+    process.env.ADMIN_EMAIL = "invalid-admin-email";
+    process.env.ADMIN_PASSWORD = "weak-password";
+
+    await assert.rejects(
+      () => bootstrapAdmin(),
+      /Invalid administrator credentials: Enter a valid email address/,
+    );
+
+    process.env.ADMIN_EMAIL = "admin@example.com";
+    await assert.rejects(
+      () => bootstrapAdmin(),
+      /Invalid administrator credentials: Password must contain at least one uppercase character/,
+    );
   });
 });

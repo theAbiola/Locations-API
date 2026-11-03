@@ -3,11 +3,13 @@ import cors from "cors";
 import session from "express-session";
 import MongoStore from "connect-mongo";
 import helmet from "helmet";
+import swaggerUi from "swagger-ui-express";
 
 import locationRouter from "./routes/locationRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import { healthController } from "./controllers/healthController.js";
 import { validateRequestOrigin } from "./middleware/originMiddleware.js";
+import openapiDocument from "./docs/openapi.json" with { type: "json" };
 
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
 
@@ -66,6 +68,12 @@ export const createApp = ({ sessionStore } = {}) => {
       },
     }),
   );
+
+  app.get("/docs/openapi.json", (req, res) => {
+    void req;
+    return res.status(200).json(openapiDocument);
+  });
+  app.use("/docs", swaggerUi.serve, swaggerUi.setup(openapiDocument));
 
   app.use("/api/locations/auth", authRouter);
   app.use("/api/locations", locationRouter);

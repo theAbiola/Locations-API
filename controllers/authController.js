@@ -1,25 +1,12 @@
 import bcrypt from "bcrypt";
 import User from "../models/User.js";
+import {
+  credentialsSchema,
+  getValidationMessage,
+} from "../validation/authValidation.js";
 
 const BCRYPT_ROUNDS = 12;
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const COOKIE_NAME = "locations.sid";
-
-const validateCredentials = (email, password) => {
-  if (typeof email !== "string" || !EMAIL_PATTERN.test(email.trim())) {
-    return "Enter a valid email address";
-  }
-
-  if (
-    typeof password !== "string" ||
-    password.length < 12 ||
-    Buffer.byteLength(password, "utf8") > 72
-  ) {
-    return "Password must be at least 12 characters and at most 72 bytes";
-  }
-
-  return null;
-};
 
 const regenerateSession = (req) =>
   new Promise((resolve, reject) => {
@@ -33,7 +20,7 @@ const saveSession = (req) =>
 
 export const register = async (req, res, next) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password, role } = req.body ?? {};
 
     if (role !== undefined) {
       return res.status(400).json({
@@ -42,12 +29,16 @@ export const register = async (req, res, next) => {
       });
     }
 
-    const validationError = validateCredentials(email, password);
-    if (validationError) {
-      return res.status(400).json({ success: false, message: validationError });
+    const credentials = credentialsSchema.safeParse({ email, password });
+    if (!credentials.success) {
+      return res.status(400).json({
+        success: false,
+        message: getValidationMessage(credentials.error),
+      });
     }
 
-    const normalizedEmail = email.trim().toLowerCase();
+    const { email: normalizedEmail, password: normalizedPassword } =
+      credentials.data;
     if (await User.exists({ email: normalizedEmail })) {
       return res.status(409).json({
         success: false,
@@ -55,7 +46,7 @@ export const register = async (req, res, next) => {
       });
     }
 
-    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+    const passwordHash = await bcrypt.hash(normalizedPassword, BCRYPT_ROUNDS);
     const user = await User.create({ email: normalizedEmail, passwordHash });
 
     await regenerateSession(req);
@@ -76,19 +67,20 @@ export const register = async (req, res, next) => {
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const credentials = credentialsSchema.safeParse(req.body ?? {});
     const invalidCredentials = () =>
       res.status(401).json({
         success: false,
         message: "Invalid email or password",
       });
 
-    if (typeof email !== "string" || typeof password !== "string") {
+    if (!credentials.success) {
       return invalidCredentials();
     }
 
+    const { email, password } = credentials.data;
     const user = await User.findOne({
-      email: email.trim().toLowerCase(),
+      email,
     }).select("+passwordHash");
     if (!user || user.status !== "active") {
       return invalidCredentials();
