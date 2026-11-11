@@ -9,6 +9,7 @@ import locationRouter from "./routes/locationRoutes.js";
 import authRouter from "./routes/authRoutes.js";
 import { healthController } from "./controllers/healthController.js";
 import { validateRequestOrigin } from "./middleware/originMiddleware.js";
+import { logRequest } from "./middleware/requestLoggerMiddleware.js";
 import openapiDocument from "./docs/openapi.json" with { type: "json" };
 
 const DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
@@ -39,6 +40,7 @@ export const createApp = ({ sessionStore } = {}) => {
   }
 
   app.disable("x-powered-by");
+  app.use(logRequest);
   app.use(helmet());
   app.use(
     cors({

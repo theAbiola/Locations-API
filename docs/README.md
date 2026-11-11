@@ -2,6 +2,8 @@
 
 The interactive API reference is available at `/docs/` when the API is running.
 The canonical OpenAPI document is available at `/docs/openapi.json`.
+The API logs each incoming request to the server console as its HTTP method and
+endpoint, including requests to documentation, health, and unknown routes.
 
 ## Local usage
 
