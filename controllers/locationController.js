@@ -1,6 +1,41 @@
 import mongoose from "mongoose";
 import Location from "../models/Location.js";
 
+const normalizeImageURLs = (imageURLs) => {
+  if (!Array.isArray(imageURLs)) {
+    return { error: "imageURLs must be an array of up to 4 URLs" };
+  }
+
+  if (imageURLs.length > 4) {
+    return { error: "imageURLs cannot contain more than 4 URLs" };
+  }
+
+  const normalizedImageURLs = imageURLs.map((imageURL) =>
+    typeof imageURL === "string" ? imageURL.trim() : imageURL,
+  );
+
+  if (
+    normalizedImageURLs.some((imageURL) => {
+      if (typeof imageURL !== "string" || imageURL === "") {
+        return true;
+      }
+
+      try {
+        const url = new URL(imageURL);
+        return url.protocol !== "http:" && url.protocol !== "https:";
+      } catch {
+        return true;
+      }
+    })
+  ) {
+    return {
+      error: "imageURLs must contain only valid HTTP or HTTPS URLs",
+    };
+  }
+
+  return { value: normalizedImageURLs };
+};
+
 export const getLocations = async (req, res) => {
   try {
     const { locationType, affordability, rating } = req.query;
@@ -109,8 +144,14 @@ export const getLocationById = async (req, res) => {
 
 export const postNewLocation = async (req, res) => {
   try {
-    const { locationName, locationType, mapURL, affordability, rating } =
-      req.body;
+    const {
+      locationName,
+      locationType,
+      mapURL,
+      affordability,
+      rating,
+      imageURLs,
+    } = req.body;
 
     // Validate field types
     if (
@@ -132,12 +173,22 @@ export const postNewLocation = async (req, res) => {
       });
     }
 
+    const normalizedImageURLs =
+      imageURLs === undefined ? { value: [] } : normalizeImageURLs(imageURLs);
+
+    if (normalizedImageURLs.error) {
+      return res.status(400).json({
+        Error: normalizedImageURLs.error,
+      });
+    }
+
     const newLocation = {
       locationName: locationName.trim(),
       locationType: locationType.trim().toLowerCase(),
       mapURL: mapURL.trim(),
       affordability,
       rating,
+      imageURLs: normalizedImageURLs.value,
     };
 
     const location = await Location.create(newLocation);
@@ -156,7 +207,7 @@ export const postNewLocation = async (req, res) => {
   }
 };
 
-export const putLocation = async (req, res) => {
+export const patchLocation = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -166,51 +217,91 @@ export const putLocation = async (req, res) => {
       });
     }
 
-    const { locationName, locationType, mapURL, affordability, rating } =
-      req.body;
-
-    // First: verify the data types
-    if (
-      typeof locationName !== "string" ||
-      typeof locationType !== "string" ||
-      typeof mapURL !== "string" ||
-      affordability == null ||
-      rating == null
-    ) {
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
       return res.status(400).json({
-        Error: "expected input is empty, try again",
+        Error: "At least one location field is required",
       });
     }
 
-    // Second: safely check for empty or whitespace-only strings
-    if (!locationName.trim() || !locationType.trim() || !mapURL.trim()) {
+    const supportedFields = [
+      "locationName",
+      "locationType",
+      "mapURL",
+      "affordability",
+      "rating",
+      "imageURLs",
+    ];
+    const fieldsToUpdate = supportedFields.filter((field) =>
+      Object.hasOwn(req.body, field),
+    );
+
+    if (fieldsToUpdate.length === 0) {
       return res.status(400).json({
-        Error: "String fields cannot be empty",
+        Error: "At least one location field is required",
       });
     }
 
-    // Third: validate the numeric fields
-    if (
-      !Number.isFinite(affordability) ||
-      !Number.isFinite(rating) ||
-      affordability < 0 ||
-      affordability > 5 ||
-      rating < 0 ||
-      rating > 5
-    ) {
-      return res.status(400).json({
-        Error: "Affordability and rating must be numbers between 0 and 5",
-      });
-    }
+    const updatedLocation = {};
+    for (const field of fieldsToUpdate) {
+      const value = req.body[field];
 
-    // Finally: construct the validated update
-    const updatedLocation = {
-      locationName: locationName.trim(),
-      locationType: locationType.trim(),
-      mapURL: mapURL.trim(),
-      affordability: affordability,
-      rating: rating,
-    };
+      if (["locationName", "locationType", "mapURL"].includes(field)) {
+        if (typeof value !== "string" || !value.trim()) {
+          return res.status(400).json({
+            Error: "String fields cannot be empty",
+          });
+        }
+
+        updatedLocation[field] =
+          field === "locationType" ? value.trim().toLowerCase() : value.trim();
+        continue;
+      }
+
+      if (["affordability", "rating"].includes(field)) {
+        if (!Number.isFinite(value) || value < 0 || value > 5) {
+          return res.status(400).json({
+            Error: "Affordability and rating must be numbers between 0 and 5",
+          });
+        }
+
+        updatedLocation[field] = value;
+        continue;
+      }
+
+      const normalizedImageURLs = normalizeImageURLs(value);
+      if (normalizedImageURLs.error) {
+        return res.status(400).json({
+          Error: normalizedImageURLs.error,
+        });
+      }
+
+      const location = await Location.findById(id).select("imageURLs");
+      if (!location) {
+        return res.status(404).json({
+          Error: "Location not found",
+        });
+      }
+
+      const existingImageURLs = location.imageURLs || [];
+      const imageURLSet = new Set(existingImageURLs);
+      const appendedImageURLs = normalizedImageURLs.value.filter((imageURL) => {
+        if (imageURLSet.has(imageURL)) {
+          return false;
+        }
+
+        imageURLSet.add(imageURL);
+        return true;
+      });
+      const mergedImageURLs = [...existingImageURLs, ...appendedImageURLs];
+
+      if (mergedImageURLs.length > 4) {
+        return res.status(400).json({
+          Error: "A location cannot have more than 4 image URLs",
+        });
+      }
+
+      updatedLocation.imageURLs = mergedImageURLs;
+    }
 
     const location = await Location.findByIdAndUpdate(id, updatedLocation, {
       new: true,

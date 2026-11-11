@@ -84,6 +84,14 @@
           },
           "affordability": { "type": "number", "minimum": 0, "maximum": 5 },
           "rating": { "type": "number", "minimum": 0, "maximum": 5 },
+          "imageURLs": {
+            "type": "array",
+            "description": "Up to four image URLs for the location.",
+            "default": [],
+            "maxItems": 4,
+            "items": { "type": "string", "format": "uri" },
+            "example": ["https://images.example/museum-front.jpg"]
+          },
           "createdAt": { "type": "string", "format": "date-time" },
           "updatedAt": { "type": "string", "format": "date-time" }
         }
@@ -293,16 +301,40 @@
           "404": { "description": "Location not found." }
         }
       },
-      "put": {
+      "patch": {
         "tags": ["Locations"],
-        "summary": "Update a location",
+        "summary": "Partially update a location",
         "security": [{ "sessionCookie": [] }],
-        "description": "Requires an authenticated administrator.",
+        "description": "Requires an authenticated administrator. Send one or more mutable location fields; omitted fields remain unchanged.",
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
-              "schema": { "$ref": "#/components/schemas/Location" }
+              "schema": {
+                "type": "object",
+                "minProperties": 1,
+                "additionalProperties": false,
+                "properties": {
+                  "locationName": { "type": "string" },
+                  "locationType": {
+                    "type": "string",
+                    "enum": ["indoor", "outdoor", "indoor/outdoor"]
+                  },
+                  "mapURL": { "type": "string", "format": "uri" },
+                  "affordability": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 5
+                  },
+                  "rating": { "type": "number", "minimum": 0, "maximum": 5 },
+                  "imageURLs": {
+                    "type": "array",
+                    "maxItems": 4,
+                    "description": "Image URLs to append to the existing list. Existing or duplicate URLs are ignored.",
+                    "items": { "type": "string", "format": "uri" }
+                  }
+                }
+              }
             }
           }
         },
