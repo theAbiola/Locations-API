@@ -1,5 +1,14 @@
 import mongoose from "mongoose";
 
+const isImageURL = (value) => {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+};
+
 const locationSchema = new mongoose.Schema(
   {
     locationName: {
@@ -37,6 +46,24 @@ const locationSchema = new mongoose.Schema(
       required: [true, "Enter a rating"],
       min: [0, "Rating cannot be less than 0"],
       max: [5, "Rating cannot be greater than 5"],
+    },
+
+    imageURLs: {
+      type: [
+        {
+          type: String,
+          trim: true,
+          validate: {
+            validator: isImageURL,
+            message: "{VALUE} is not a valid image URL",
+          },
+        },
+      ],
+      default: [],
+      validate: {
+        validator: (imageURLs) => imageURLs.length <= 4,
+        message: "A location cannot have more than 4 image URLs",
+      },
     },
   },
   {

@@ -3,7 +3,7 @@ import {
   getLocations,
   getLocationById,
   postNewLocation,
-  putLocation,
+  patchLocation,
   deleteSpecificLocation,
 } from "../controllers/locationController.js";
 import {
@@ -18,7 +18,7 @@ locationRouter.use(requireAuthentication);
 locationRouter.get("/", getLocations);
 locationRouter.get("/:id", getLocationById);
 locationRouter.post("/", requireAdmin, postNewLocation);
-locationRouter.put("/:id", requireAdmin, putLocation);
+locationRouter.patch("/:id", requireAdmin, patchLocation);
 locationRouter.delete("/:id", requireAdmin, deleteSpecificLocation);
 
 export default locationRouter;

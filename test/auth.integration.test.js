@@ -227,18 +227,131 @@ describe("location authorization", () => {
       })
       .expect(201);
 
+    assert.deepEqual(created.body.imageURLs, []);
+
     await agent
-      .put(`/api/locations/${created.body._id}`)
+      .patch(`/api/locations/${created.body._id}`)
       .send({
         locationName: "Updated Museum",
-        locationType: "indoor",
-        mapURL: "https://maps.example/museum",
-        affordability: 2,
-        rating: 5,
+        imageURLs: [
+          "https://images.example/museum-front.jpg",
+          "https://images.example/museum-gallery.jpg",
+        ],
       })
       .expect(200);
 
+    const updated = await agent
+      .get(`/api/locations/${created.body._id}`)
+      .expect(200);
+    assert.equal(updated.body.locationName, "Updated Museum");
+    assert.equal(updated.body.locationType, "indoor");
+    assert.equal(updated.body.mapURL, "https://maps.example/museum");
+    assert.equal(updated.body.affordability, 3);
+    assert.equal(updated.body.rating, 4);
+    assert.deepEqual(updated.body.imageURLs, [
+      "https://images.example/museum-front.jpg",
+      "https://images.example/museum-gallery.jpg",
+    ]);
+
+    await agent
+      .patch(`/api/locations/${created.body._id}`)
+      .send({
+        imageURLs: [
+          "https://images.example/museum-gallery.jpg",
+          "https://images.example/museum-entrance.jpg",
+          "https://images.example/museum-roof.jpg",
+          "https://images.example/museum-roof.jpg",
+        ],
+      })
+      .expect(200);
+
+    const appended = await agent
+      .get(`/api/locations/${created.body._id}`)
+      .expect(200);
+    assert.deepEqual(appended.body.imageURLs, [
+      "https://images.example/museum-front.jpg",
+      "https://images.example/museum-gallery.jpg",
+      "https://images.example/museum-entrance.jpg",
+      "https://images.example/museum-roof.jpg",
+    ]);
+
+    await agent
+      .patch(`/api/locations/${created.body._id}`)
+      .send({
+        imageURLs: [
+          "https://images.example/museum-side.jpg",
+          "https://images.example/museum-garden.jpg",
+        ],
+      })
+      .expect(400);
+
+    const unchangedAfterRejectedAppend = await agent
+      .get(`/api/locations/${created.body._id}`)
+      .expect(200);
+    assert.deepEqual(unchangedAfterRejectedAppend.body.imageURLs, [
+      "https://images.example/museum-front.jpg",
+      "https://images.example/museum-gallery.jpg",
+      "https://images.example/museum-entrance.jpg",
+      "https://images.example/museum-roof.jpg",
+    ]);
+
+    await agent
+      .patch(`/api/locations/${created.body._id}`)
+      .send({ rating: 6 })
+      .expect(400);
+    await agent
+      .patch(`/api/locations/${created.body._id}`)
+      .send({})
+      .expect(400);
+    await agent
+      .put(`/api/locations/${created.body._id}`)
+      .send({ rating: 2 })
+      .expect(404);
+
     await agent.delete(`/api/locations/${created.body._id}`).expect(200);
+  });
+
+  test("rejects invalid image URL arrays", async () => {
+    const passwordHash = await bcrypt.hash(validUser.password, 4);
+    await User.create({
+      email: "admin@example.com",
+      passwordHash,
+      role: "admin",
+    });
+
+    const agent = request.agent(app);
+    await agent
+      .post("/api/locations/auth/login")
+      .send({ email: "admin@example.com", password: validUser.password })
+      .expect(200);
+
+    const location = {
+      locationName: "Museum",
+      locationType: "indoor",
+      mapURL: "https://maps.example/museum",
+      affordability: 3,
+      rating: 4,
+    };
+
+    for (const imageURLs of [
+      "https://images.example/museum.jpg",
+      [
+        "https://images.example/1.jpg",
+        "https://images.example/2.jpg",
+        "https://images.example/3.jpg",
+        "https://images.example/4.jpg",
+        "https://images.example/5.jpg",
+      ],
+      ["not-a-url"],
+      [""],
+    ]) {
+      const response = await agent
+        .post("/api/locations")
+        .send({ ...location, imageURLs })
+        .expect(400);
+
+      assert.match(response.body.Error, /imageURLs/);
+    }
   });
 });
 

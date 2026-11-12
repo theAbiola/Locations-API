@@ -2,6 +2,8 @@
 
 The interactive API reference is available at `/docs/` when the API is running.
 The canonical OpenAPI document is available at `/docs/openapi.json`.
+The API logs each incoming request to the server console as its HTTP method and
+endpoint, including requests to documentation, health, and unknown routes.
 
 ## Local usage
 
@@ -15,6 +17,17 @@ The canonical OpenAPI document is available at `/docs/openapi.json`.
 The OpenAPI document in `docs/openapi.json` is the source of truth for routes,
 request bodies, responses, security, and examples. Update it whenever an API
 route or response contract changes.
+
+Location responses include an optional `imageURLs` array. It defaults to an
+empty array and accepts a maximum of four HTTP or HTTPS image URLs.
+
+Administrators update locations with `PATCH /api/locations/{id}`. Send one or
+more mutable location fields; omitted fields remain unchanged. Empty patch
+bodies and bodies without supported location fields are rejected.
+
+When `imageURLs` is included in a PATCH request, the supplied URLs are appended
+to the existing list. Existing or duplicate URLs are ignored. The location can
+contain at most four URLs; an append that would exceed this limit is rejected.
 
 ## Running integration tests
 
